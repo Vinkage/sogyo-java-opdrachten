@@ -29,11 +29,4 @@ public class leap_year_helper {
         }
         return inputLine;
         }
-
-    public Boolean checkInput(String year) {
-        boolean isInt = year.matches("[0-9]+");
-        if (isInt)
-            return true;
-        return false;
-    }
 }

@@ -51,19 +51,6 @@ class leap_year_helperTest {
     }
 
     @Test
-    @DisplayName("input checker test")
-    public void testYearInput() {
-        String yearInput = "1994";
-        String nullInput = "";
-        String characterInput = "wioefwe";
-        assertAll(
-                () -> assertTrue(Helper.checkInput(yearInput), "Check input is not true when it should be"),
-                () -> assertFalse(Helper.checkInput(nullInput), "Check input is not true when it should be"),
-                () -> assertFalse(Helper.checkInput(characterInput), "Check input is not true when it should be")
-        );
-    }
-
-    @Test
     @DisplayName("Simulated input test")
     public void testSimulateUser() {
         final String testString = "hello!";

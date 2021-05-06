@@ -31,7 +31,7 @@ class leap_yearTest {
     }
 
     @Test
-    void checkUserInputTest() {
+    void checkLeapYearTest() {
         // User input is always integer
 
         // divisible by 4
