@@ -3,11 +3,14 @@ package beginner.leapYear;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.regex.Pattern;
 
 public class leap_year_helper {
 
-    public String getUserInput(String prompt) {
+    public interface MyInputChecker {
+        public boolean check(String Input);
+    }
+
+    public String getUserInput(String prompt, MyInputChecker checker) {
         String inputLine = null;
         System.out.print(prompt + ' ');
         try {
@@ -17,7 +20,7 @@ public class leap_year_helper {
 
             inputLine = is.readLine();
 
-            if (!checkInput(inputLine)) {
+            if (!checker.check(inputLine)) {
                 return null;
             }
 

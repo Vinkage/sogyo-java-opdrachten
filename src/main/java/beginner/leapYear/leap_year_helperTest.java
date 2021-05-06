@@ -1,22 +1,53 @@
 package beginner.leapYear;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintStream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class leap_year_helperTest {
+    private final InputStream systemIn = System.in;
+    private final PrintStream systemOut = System.out;
+
+    private ByteArrayInputStream testIn;
+    private ByteArrayOutputStream testOut;
 
     private leap_year_helper Helper;
+    private leap_year_helper.MyInputChecker yearCheckLambda = (String year) -> {
+        boolean isInt = year.matches("[0-9]+");
+        if (isInt)
+            return true;
+        return false;
+    };
+
+    private leap_year_helper.MyInputChecker yesNoLambda = (String input) -> {
+        boolean isYesNo = input.matches("(y)|(n)");
+        if (isYesNo)
+            return true;
+        return false;
+    };
 
     @BeforeEach
     public void setUp() throws Exception {
         Helper = new leap_year_helper();
+    }
+
+    private void provideInput(String data) {
+        testIn = new ByteArrayInputStream(data.getBytes());
+        System.setIn(testIn);
+    }
+
+    @AfterEach
+    public void restoreSystemInputOutput() {
+        System.setIn(systemIn);
+        System.setOut(systemOut);
     }
 
     @Test
@@ -33,12 +64,18 @@ class leap_year_helperTest {
     }
 
     @Test
-    @DisplayName("input checker test")
+    @DisplayName("Simulated input test")
     public void testSimulateUser() {
-        // taken from https://stackoverflow.com/questions/6415728/junit-testing-with-simulated-user-input
-        InputStream sysInBackup = System.in;
-        ByteArrayInputStream in = new ByteArrayInputStream("My string".getBytes(StandardCharsets.UTF_8));
-        System.setIn(in);
+        final String testString = "hello!";
+        provideInput(testString);
+        String Result = Helper.getUserInput("Enter your input: ", yearCheckLambda);
+        // Null because the input is not a year
+        assertNull(Result);
 
+        final String testString2 = "1994";
+        provideInput(testString2);
+        String Result2 = Helper.getUserInput("Enter your input: ", yearCheckLambda);
+        // If input consists only of integers than that input string is returned
+        assertEquals("1994", Result2);
     }
 }
