@@ -2,6 +2,18 @@ package nl.sogyo.javaopdrachten.roborally;
 
 import java.util.ArrayList;
 
+class SpeedIntTooFastException extends Exception {
+    public SpeedIntTooFastException(String errorMessage) {
+        super(errorMessage);
+    }
+}
+
+class SpeedIntTooSlowException extends Exception {
+    public SpeedIntTooSlowException(String errorMessage) {
+        super(errorMessage);
+    }
+}
+
 public class Robot {
     private int x = 0;
     private int y = 0;
@@ -36,23 +48,36 @@ public class Robot {
     }
 
     public void forward(int speedInt) {
-        commandQueue.add(() -> {
-                    switch (this.facing) {
-                        case "North":
-                            this.y = this.y + speedInt;
-                            break;
-                        case "East":
-                            this.x = this.x + speedInt;
-                            break;
-                        case "South":
-                            this.y = this.y - speedInt;
-                            break;
-                        case "West":
-                            this.x = this.x - speedInt;
-                            break;
+        try {
+            if (speedInt > 3) {
+                throw new SpeedIntTooFastException("You provided a too high speedInt argument to Robot.forward");
+            } else if (speedInt < 1) {
+                throw new SpeedIntTooSlowException("You provided a low high speedInt argument to Robot.forward");
+            }
+
+            commandQueue.add(() -> {
+                switch (this.facing) {
+                    case "North":
+                        this.y = this.y + speedInt;
+                        break;
+                    case "East":
+                        this.x = this.x + speedInt;
+                        break;
+                    case "South":
+                        this.y = this.y - speedInt;
+                        break;
+                    case "West":
+                        this.x = this.x - speedInt;
+                        break;
+                        }
                     }
-                }
-        );
+            );
+
+        } catch (SpeedIntTooFastException e) {
+            System.out.println(e);
+        } catch (SpeedIntTooSlowException e) {
+            System.out.println(e);
+        }
     }
 
 

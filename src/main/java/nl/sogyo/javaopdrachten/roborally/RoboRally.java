@@ -59,6 +59,11 @@ public class RoboRally {
         myAwesomeBot.execute();
     }
 
+    private void rallyExceptionForward() {
+        Robot myAwesomeBot = new Robot(1, 0, "North");
+        myAwesomeBot.forward(4);
+    }
+
     public static void main(String args[]) {
         RoboRally roboRally = new RoboRally();
         System.out.println("Showing all methods of a robot!");
@@ -73,5 +78,10 @@ public class RoboRally {
         System.out.println();
         roboRally.rallyForwardBackward();
         System.out.println();
+        System.out.println("Showing exception handling of forward method");
+        System.out.println();
+        roboRally.rallyExceptionForward();
+        System.out.println();
     }
+
 }
