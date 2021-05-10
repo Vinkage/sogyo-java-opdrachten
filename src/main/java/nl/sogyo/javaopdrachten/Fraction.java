@@ -59,6 +59,7 @@ public class Fraction {
 
     public void divide(int factor) {
         this.denom = this.denom * factor;
+        reduce();
     }
 
     public void divide(Fraction factor) {
