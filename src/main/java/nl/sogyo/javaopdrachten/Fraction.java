@@ -16,6 +16,14 @@ public class Fraction {
         return Integer.toString(this.numer) + "/" + Integer.toString(this.denom);
     }
 
+    public int getNumer() {
+        return numer;
+    }
+
+    public int getDenom() {
+        return denom;
+    }
+
     public void add(int term) {
         this.numer = this.numer + (term * this.denom);
         reduce();
@@ -61,27 +69,32 @@ public class Fraction {
 
 
     private void commonDenomForm(Fraction a, Fraction b) {
+        // Calculates lowest common multiple recursively
         int currentLCM = lcm(a.denom, b.denom);
-        // System.out.println("current lcm: " + currentLCM);
 
+        // Scales numerator
         if (a.denom < currentLCM) {
             a.numer = (a.numer * (currentLCM / a.denom));
         }
-
         if (b.denom < currentLCM) {
             b.numer = (b.numer * (currentLCM / b.denom));
         }
+
+        // Sets new denominator
         a.denom = currentLCM;
         b.denom = currentLCM;
     }
 
     private void reduce() {
+        // Calculates greatest common divisor recursively
         int currentGCD = gcd(this.numer, this.denom);
+        // Scales the fraction
         this.numer = this.numer / currentGCD;
         this.denom = this.denom / currentGCD;
     }
 
-    public int gcd(int a, int b) {
+    private int gcd(int a, int b) {
+        // Recursive gcd
         if (b != 0) {
             return gcd(b, a % b);
         } else {
@@ -89,11 +102,13 @@ public class Fraction {
         }
     }
 
-    public int lcm(int a, int b) {
+    private int lcm(int a, int b) {
+        // Helper to keep track of initial a and b
         return lcmHelper(a, b, a, b);
     }
 
-    public int lcmHelper(int a, int b, int aInitial, int bInitial) {
+    private int lcmHelper(int a, int b, int aInitial, int bInitial) {
+        // Recursive lcm
         if (a == 0 || b == 0) {
             return 0;
         } else if (a > b && a % b != 0) {
@@ -106,14 +121,5 @@ public class Fraction {
             return a;
         }
     }
-
-    public int getNumer() {
-        return numer;
-    }
-
-    public int getDenom() {
-        return denom;
-    }
-
 }
 
