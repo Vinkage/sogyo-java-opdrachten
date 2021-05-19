@@ -15,7 +15,7 @@ public class Line {
         return new ParametricLine(this.origin, directionUnitVec);
     }
 
-    public Vector intersect(Line otherLine) {
+    public Intersection intersect(Line otherLine) {
         Float[] originxyz = this.origin.getCartesianCoordinates();
         Float[] otherOriginxyz = otherLine.origin.getCartesianCoordinates();
 
@@ -49,7 +49,7 @@ public class Line {
         Vector intersectionPoint = this.parametricRepresentation().getVectorOfPointOnLine((float) solvedParams[0]);
         AngleCalculator angleCalculator = new AngleCalculator(this.parametricRepresentation(), otherLine.parametricRepresentation());
         Float angle = angleCalculator.calculateAngle();
-        return null;
+        return new Intersection(intersectionPoint, angle);
     }
 
 

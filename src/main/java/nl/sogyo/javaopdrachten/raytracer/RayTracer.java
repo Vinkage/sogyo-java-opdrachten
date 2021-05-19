@@ -29,7 +29,7 @@ public class RayTracer {
         Vector otherVector1 = new Vector(4, 5,2);
         Line otherLine = new Line(vector1, otherVector1);
 
-        Vector intersection = line.intersect(otherLine);
+        Intersection intersection = line.intersect(otherLine);
 
     }
 
