@@ -25,12 +25,14 @@ public class RayTracer {
         Vector vector = new Vector(1,1,1);
         Vector otherVector = new Vector(2,2,2);
         Line line = new Line(vector, otherVector);
+
         Vector vector1 = new Vector(1,1,1);
         Vector otherVector1 = new Vector(4, 5,2);
         Line otherLine = new Line(vector1, otherVector1);
 
         Intersection intersection = line.intersect(otherLine);
-
+        if (intersection != null)
+            System.out.println(intersection.toString());
     }
 
     private void angleCalculatorTestDrive() {
