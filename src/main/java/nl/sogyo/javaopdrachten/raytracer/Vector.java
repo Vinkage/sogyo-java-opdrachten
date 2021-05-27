@@ -4,6 +4,7 @@ public class Vector {
     private Float x, y, z;
     private Float modulus;
     private Float theta, phi;
+    private static final double EPSILON = 1e-8;
 
     public Vector(Float x, Float y, Float z) {
         this.x = x;
@@ -160,6 +161,16 @@ public class Vector {
     public Vector scalarModulusShiftAndReturn(Float shift) {
         Vector vector = shiftModulusAndReturn(shift);
         return vector;
+    }
+
+    public boolean samePoint(Vector otherPoint) {
+        Float[] myCoords = getCartesianCoordinates();
+        Float[] theirCoords = otherPoint.getCartesianCoordinates();
+        for (int i = 0; i < 3; i++) {
+            if (Math.abs(myCoords[i] - theirCoords[i]) >= EPSILON)
+                return false;
+        }
+        return true;
     }
 
     public Vector addition(Vector otherVector) {

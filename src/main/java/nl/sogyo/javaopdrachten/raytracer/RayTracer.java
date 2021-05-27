@@ -22,17 +22,29 @@ public class RayTracer {
 
     private void lineIntersecterTestDrive() {
         System.out.println("\n\nTesting intersection calculator");
-        Vector vector = new Vector(1,1,1);
-        Vector otherVector = new Vector(2,2,2);
+        System.out.println("Example 1:\n");
+        Vector vector = new Vector(2,1,-2);
+        Vector otherVector = new Vector(8,-7,8);
         Line line = new Line(vector, otherVector);
 
-        Vector vector1 = new Vector(1,1,1);
-        Vector otherVector1 = new Vector(4, 5,2);
+        Vector vector1 = new Vector(-1,-10,5);
+        Vector otherVector1 = new Vector(5, -3,3);
         Line otherLine = new Line(vector1, otherVector1);
 
         Intersection intersection = line.intersect(otherLine);
-        if (intersection != null)
-            System.out.println(intersection.toString());
+        System.out.println(intersection.toString());
+
+        System.out.println("Example 2:\n");
+        Vector vector2 = new Vector(1,4,-2);
+        Vector otherVector2 = new Vector(3,8,6);
+        Line line2 = new Line(vector2, otherVector2);
+
+        Vector vector21 = new Vector(0,4,8);
+        Vector otherVector21 = new Vector(6, 10,-10);
+        Line otherLine2 = new Line(vector21, otherVector21);
+
+        Intersection intersection2 = line2.intersect(otherLine2);
+        System.out.println(intersection2.toString());
     }
 
     private void angleCalculatorTestDrive() {
