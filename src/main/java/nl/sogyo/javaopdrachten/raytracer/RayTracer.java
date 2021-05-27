@@ -18,6 +18,9 @@ public class RayTracer {
 
     private void sphereTestDrive() {
         // http://paulbourke.net/geometry/circlesphere/
+        Vector origin = new Vector(0,0,0);
+        Float radius = 5f;
+        Sphere sphere = new Sphere(origin, radius);
     }
 
     private void lineIntersecterTestDrive() {
