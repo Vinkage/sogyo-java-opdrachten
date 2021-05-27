@@ -11,8 +11,9 @@ public class Line {
     }
 
     public ParametricLine parametricRepresentation() {
-        Vector directionUnitVec = origin.subtraction(bindingPoint).toUnitLengthAndReturn();
-        // System.out.println(directionUnitVec.toString());
+        Vector diff = bindingPoint.subtraction(origin);
+        // System.out.println(diff);
+        Vector directionUnitVec = diff.toUnitLengthAndReturn();
         return new ParametricLine(this.origin, directionUnitVec);
     }
 
@@ -26,6 +27,10 @@ public class Line {
 
         double crossProductDirectionsNorm = Math.abs(directionsCrossproduct.getModulus());
         double crossProductBetweenNorm = Math.abs(betweenCrossproduct.getModulus());
+        // System.out.println(origin);
+        // System.out.println(otherLine.origin);
+        // System.out.println(betweenCrossproduct);
+        // System.out.println(directionsCrossproduct);
 
         // https://math.stackexchange.com/questions/270767/find-intersection-of-two-3d-lines/271366
 
@@ -34,10 +39,8 @@ public class Line {
             intersectionPoint = origin;
         else if (crossProductDirectionsNorm < EPSILON || crossProductBetweenNorm < EPSILON) {
             return null;
-        } else if (Math.abs(directionsCrossproduct.crossProduct(betweenCrossproduct).getModulus()) < EPSILON) {
-            intersectionPoint = parametricRepresentation().getVectorOfPointOnLine((float) (crossProductBetweenNorm / crossProductDirectionsNorm));
         } else
-            intersectionPoint = parametricRepresentation().getVectorOfPointOnLine((float) (-crossProductBetweenNorm / crossProductDirectionsNorm));
+            intersectionPoint = parametricRepresentation().getVectorOfPointOnLine((float) (crossProductBetweenNorm / crossProductDirectionsNorm));
 
         AngleCalculator angleCalculator = new AngleCalculator(parametricRepresentation(), otherLine.parametricRepresentation());
         Float angle = angleCalculator.calculateAngle();

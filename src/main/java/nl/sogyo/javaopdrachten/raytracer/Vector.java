@@ -4,7 +4,7 @@ public class Vector {
     private Float x, y, z;
     private Float modulus;
     private Float theta, phi;
-    private static final double EPSILON = 1e-8;
+    private static final double EPSILON = 1e-6;
 
     public Vector(Float x, Float y, Float z) {
         this.x = x;
@@ -59,8 +59,31 @@ public class Vector {
         this.z = (float) (this.modulus * Math.cos(this.phi));
     }
 
+    Vector removeRoundOffErrorBluntly() {
+        this.x = approximatesZero(this.x);
+        this.y = approximatesZero(this.y);
+        this.z = approximatesZero(this.z);
+        setPolarCoordinates();
+        return this;
+    }
+
+    private float approximatesZero(float number) {
+        if (number < EPSILON)
+            return 0f;
+        return number;
+    }
+
     public String toString() {
-        return ("x :" + this.x + ", y: " + this.y + ", z: " + this.z + ", mod: " + this.modulus + ", theta: " + this.theta + ", phi: " + this.phi);
+        return ("(" + this.x + ", " + this.y + ", " + this.z + ")");
+    }
+
+    public String toStringWithPolar() {
+        return ("(" + this.x + ", " + this.y + ", " + this.z + ") mod: " + this.modulus + ", theta: " + this.theta + ", phi: " + this.phi);
+    }
+
+
+    public String toStringCartxyz() {
+        return ("(" + x + ", " + y + ", " + z + ")");
     }
 
     private void setModulus() {
@@ -102,19 +125,56 @@ public class Vector {
     }
 
     public void scaleModulus(Float scalar) {
-        this.modulus = scalar * this.modulus;
+        float absScalar = Math.abs(scalar);
+        if (scalar < 0)
+            scalarMultiplySelf(-1f);
+
+        this.modulus = absScalar * this.modulus;
         this.setCartesianCoordinates();
     }
 
-    public Vector scaleModulusAndReturn(Float scalar) {
-        Vector vector;
-        vector = Vector.fromPolar((scalar * this.modulus), this.theta, this.phi);
-        return vector;
+    // public Vector scaleModulusAndReturn(Float scalar) {
+    //     try {
+    //         if (scalar < 0)
+    //             throw new Exception("Cannot change sign of modulus in this interpretation.");
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    //     scalarMultiply(scalar);
+    //     return vector;
+    // }
+
+    private void scalarMultiplySelf(Float scalar) {
+        x = x * scalar;
+        y = y * scalar;
+        z = z * scalar;
+        setPolarCoordinates();
+    }
+
+    public Vector scalarMultiply(Float scalar) {
+        Float[] newCartesian = new Float[3];
+        Float[] thisCartesian = this.getCartesianCoordinates();
+        for (int i = 0; i <3; i++) {
+            newCartesian[i] = scalar * thisCartesian[i];
+        }
+        return new Vector(newCartesian);
     }
 
     public Float[] getCartesianCoordinates() {
         return new Float[]{this.x, this.y, this.z};
     }
+
+    public Float getX() {
+        return x;
+    }
+    public Float getY() {
+        return y;
+    }
+    public Float getZ() {
+        return z;
+    }
+
+
 
     public Float[] getPolarCoordinates() {
         return new Float[]{this.modulus, this.theta, this.phi};
@@ -142,16 +202,20 @@ public class Vector {
         setCartesianCoordinates();
     }
 
-    public Vector setModulusAndReturn(Float modulus) {
-        return Vector.fromPolar(modulus, this.theta, this.phi);
-    }
-
     public void toUnitLength() {
-        this.setModulus(1f);
+        x = x / modulus;
+        y = y / modulus;
+        z = z / modulus;
+        modulus = 1f;
     }
 
     public Vector toUnitLengthAndReturn() {
-        return setModulusAndReturn(1f);
+        Float[] newCartesian = new Float[3];
+        Float[] thisCartesian = this.getCartesianCoordinates();
+        for (int i = 0; i <3; i++) {
+            newCartesian[i] = thisCartesian[i] / this.modulus;
+        }
+        return new Vector(newCartesian);
     }
 
     public void scalarModulusShift(Float shift) {
@@ -213,9 +277,9 @@ public class Vector {
         Float[] thisCartesian = this.getCartesianCoordinates();
         Float[] otherCartesian = otherVector.getCartesianCoordinates();
 
-        i.scaleModulus((thisCartesian[1] * otherCartesian[2] - thisCartesian[2] * otherCartesian[1]));
-        j.scaleModulus((thisCartesian[0] * otherCartesian[2] - thisCartesian[2] * otherCartesian[0]));
-        k.scaleModulus((thisCartesian[0] * otherCartesian[1] - thisCartesian[1] * otherCartesian[0]));
+        i = i.scalarMultiply((thisCartesian[1] * otherCartesian[2] - thisCartesian[2] * otherCartesian[1]));
+        j = j.scalarMultiply((thisCartesian[0] * otherCartesian[2] - thisCartesian[2] * otherCartesian[0]));
+        k = k.scalarMultiply((thisCartesian[0] * otherCartesian[1] - thisCartesian[1] * otherCartesian[0]));
 
         return i.subtraction(j).addition(k);
     }
