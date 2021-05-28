@@ -133,17 +133,6 @@ public class Vector {
         this.setCartesianCoordinates();
     }
 
-    // public Vector scaleModulusAndReturn(Float scalar) {
-    //     try {
-    //         if (scalar < 0)
-    //             throw new Exception("Cannot change sign of modulus in this interpretation.");
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    //     scalarMultiply(scalar);
-    //     return vector;
-    // }
-
     private void scalarMultiplySelf(Float scalar) {
         x = x * scalar;
         y = y * scalar;

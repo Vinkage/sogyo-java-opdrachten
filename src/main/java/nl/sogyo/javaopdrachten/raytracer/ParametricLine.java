@@ -18,7 +18,8 @@ public class ParametricLine {
     }
 
     public Vector getVectorOfPointOnLine(Float parameter) {
-        return origin.addition(directionVec.scalarMultiply(parameter));
+        Vector step = directionVec.scalarMultiply(parameter);
+        return origin.addition(step);
     }
 
     public void reverseDirection() {

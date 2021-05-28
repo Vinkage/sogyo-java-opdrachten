@@ -11,7 +11,7 @@ public class Sphere implements Shape {
     }
 
     @Override
-    public Vector[] intersect(Line line) {
+    public Vector[] intersect(Line line) throws NoIntersectionPossible {
         ParametricLine ray = line.parametricRepresentation();
         Vector Ro = ray.getOrigin();
         Vector Rd = ray.getDirectionVec();
@@ -19,11 +19,14 @@ public class Sphere implements Shape {
         Vector diffSandRo = this.origin.subtraction(Ro);
         float lengthFromRoTo_t = diffSandRo.dotProduct(Rd);
 
+
         Vector t = ray.getVectorOfPointOnLine(lengthFromRoTo_t);
 
         // switching to circle interpretation
         Vector diffSand_t = this.origin.subtraction(t);
         float y = diffSand_t.getModulus();
+
+        if (y > radius) throw new NoIntersectionPossible();
 
         if (Math.abs(this.radius - y) < EPSILON) {
             Vector[] intersections = new Vector[1];

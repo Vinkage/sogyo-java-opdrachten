@@ -13,4 +13,12 @@ public class Lightsource {
         return "lightsource: " + position.toString() + " - " +
                 "Brightness: " + brightness;
     }
+
+    public Vector getPosition() {
+        return position;
+    }
+
+    public float getBrightness() {
+        return brightness;
+    }
 }

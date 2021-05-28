@@ -65,6 +65,16 @@ public class Viewport {
                yRay = new Line(corner, corner.addition(yRay.getDirectionVec())).parametricRepresentation();
            }
 
+            xRay = new Line(corner, corner.addition(xRay.getDirectionVec())).parametricRepresentation();
+            yRay = new Line(corner, corner.addition(yRay.getDirectionVec())).parametricRepresentation();
+
+            try {
+               if (xRay.getOrigin().samePoint(yRay.getOrigin()));
+               else throw new NotTheSameOrigin();
+           } catch (NotTheSameOrigin e) {
+               e.printStackTrace();
+           }
+
         }
     }
 
@@ -78,8 +88,15 @@ public class Viewport {
         Vector yAsPos = yRay.getVectorOfPointOnLine((float) y);
 
         vector = yAsPos.addition(xAsPos.subtraction(corner));
-
         return vector;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     public String toString() {
