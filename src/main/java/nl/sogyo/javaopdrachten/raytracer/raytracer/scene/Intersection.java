@@ -1,12 +1,16 @@
-package nl.sogyo.javaopdrachten.raytracer;
+package nl.sogyo.javaopdrachten.raytracer.raytracer.scene;
 
 public class Intersection {
-    private Vector intersectionPoint;
-    private Float angleOfIntersection;
+    private final Vector intersectionPoint;
+    private final float angleOfIntersection;
 
     public Intersection(Vector intersectionPoint, Float angleOfIntersection) {
         this.intersectionPoint = intersectionPoint;
         this.angleOfIntersection = angleOfIntersection;
+    }
+
+    public float getAngleOfIntersection() {
+        return angleOfIntersection;
     }
 
     @Override

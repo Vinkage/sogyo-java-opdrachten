@@ -1,4 +1,4 @@
-package nl.sogyo.javaopdrachten.raytracer;
+package nl.sogyo.javaopdrachten.raytracer.raytracer.scene;
 
 public class Vector {
     private Float x, y, z;
@@ -55,21 +55,25 @@ public class Vector {
 
     private void setCartesianCoordinates() {
         this.x = (float) (this.modulus * Math.sin(this.phi) * Math.cos(this.theta));
-        this.y = (float) (this.modulus * Math.sin(this.phi) * Math.sin(this.theta));
+        // if (y != 0)
+        //     this.y = (this.y / Math.abs(this.y)) * (float) (this.modulus * Math.sin(this.phi) * Math.sin(this.theta));
+        // else
+        //     this.y =  (float) (this.modulus * Math.sin(this.phi) * Math.sin(this.theta));
+        this.y =  (float) (this.modulus * Math.sin(this.phi) * Math.sin(this.theta));
         this.z = (float) (this.modulus * Math.cos(this.phi));
     }
 
     Vector removeRoundOffErrorBluntly() {
-        this.x = approximatesZero(this.x);
-        this.y = approximatesZero(this.y);
-        this.z = approximatesZero(this.z);
+        this.x = approximates(this.x);
+        this.y = approximates(this.y);
+        this.z = approximates(this.z);
         setPolarCoordinates();
         return this;
     }
 
-    private float approximatesZero(float number) {
-        if (number < EPSILON)
-            return 0f;
+    private float approximates(float number) {
+        if (Math.abs(number - Math.round(number)) < EPSILON)
+            return Math.round(number);
         return number;
     }
 
@@ -104,8 +108,10 @@ public class Vector {
     }
 
     private void setDefinedTheta() {
-        if (x == 0) {
-            this.theta = (float) Math.PI /2;
+        if (x == 0 && y == 0) {
+            this.theta = 0f;// (float) Math.PI /2;
+        } else if (x == 0 && y != 0) {
+            this.theta = (float) Math.PI / 2;
         } else if (x < 0) {
             this.theta = ((float) Math.atan(y / x)) + (float) Math.PI;
         } else {
@@ -127,13 +133,13 @@ public class Vector {
     public void scaleModulus(Float scalar) {
         float absScalar = Math.abs(scalar);
         if (scalar < 0)
-            scalarMultiplySelf(-1f);
+            scalarMultiplyInPlace(-1f);
 
         this.modulus = absScalar * this.modulus;
         this.setCartesianCoordinates();
     }
 
-    private void scalarMultiplySelf(Float scalar) {
+    public void scalarMultiplyInPlace(Float scalar) {
         x = x * scalar;
         y = y * scalar;
         z = z * scalar;
@@ -153,32 +159,46 @@ public class Vector {
         return new Float[]{this.x, this.y, this.z};
     }
 
-    public Float getX() {
+    public float getX() {
         return x;
     }
-    public Float getY() {
+    public float getY() {
         return y;
     }
-    public Float getZ() {
+    public float getZ() {
         return z;
     }
 
+    public float getPhi() {return phi;}
+    public float getTheta() {return theta;}
 
 
     public Float[] getPolarCoordinates() {
         return new Float[]{this.modulus, this.theta, this.phi};
     }
 
-    public void rotation(Float thetaShift, Float phiShift) {
-        if (this.theta == null) {
-            this.theta = 0f;
+    public void rotationInPlace(Float thetaShift, Float phiShift) {
+        Vector axisUnit;
+        Vector copy;
+
+        if (phiShift != 0) {
+            copy = new Vector(this.getCartesianCoordinates());
+            axisUnit = this.toUnitLengthAndReturn().crossProduct(new Vector(0, 0, 1));
+            // Rodrigues rotation formula
+            this.scalarMultiplyInPlace((float) Math.cos(phiShift));
+            this.additionInPlace((axisUnit.crossProduct(copy)).scalarMultiply((float) Math.sin(phiShift)));
+            this.additionInPlace(axisUnit.scalarMultiply((float) ((axisUnit.dotProduct(copy)) * (1 - Math.cos(phiShift)))));
         }
-        if (this.phi == null) {
-            this.phi = 0f;
+
+        if (thetaShift != 0) {
+            copy = new Vector(this.getCartesianCoordinates());
+            axisUnit = new Vector(0, 0, 1);
+            // Rodrigues rotation formula
+            this.scalarMultiplyInPlace((float) Math.cos(thetaShift));
+            this.additionInPlace((axisUnit.crossProduct(copy)).scalarMultiply((float) Math.sin(thetaShift)));
+            this.additionInPlace(axisUnit.scalarMultiply((float) ((axisUnit.dotProduct(copy)) * (1 - Math.cos(thetaShift)))));
         }
-        this.theta = this.theta + thetaShift;
-        this.phi = this.phi + phiShift;
-        setCartesianCoordinates();
+        removeRoundOffErrorBluntly();
     }
 
     public Vector rotationAndReturn(Float thetaShift, Float phiShift) {
@@ -236,7 +256,14 @@ public class Vector {
         return new Vector(newCartesian);
     }
 
-    public Vector subtraction(Vector otherVector) {
+    public void additionInPlace(Vector otherVector) {
+        this.x = otherVector.x + this.x;
+        this.y = otherVector.y + this.y;
+        this.z = otherVector.z + this.z;
+        setPolarCoordinates();
+    }
+
+    public Vector subtract(Vector otherVector) {
         Float[] newCartesian = new Float[3];
         Float[] thisCartesian = this.getCartesianCoordinates();
         Float[] otherCartesian = otherVector.getCartesianCoordinates();
@@ -244,6 +271,13 @@ public class Vector {
             newCartesian[i] = thisCartesian[i] - otherCartesian[i];
         }
         return new Vector(newCartesian);
+    }
+
+    public void subtractInPlace(Vector otherVector) {
+        this.x = this.x - otherVector.x;
+        this.y = this.y - otherVector.y;
+        this.z = this.z - otherVector.z;
+        setPolarCoordinates();
     }
 
     public Float dotProduct(Vector otherVector) {
@@ -270,7 +304,23 @@ public class Vector {
         j = j.scalarMultiply((thisCartesian[0] * otherCartesian[2] - thisCartesian[2] * otherCartesian[0]));
         k = k.scalarMultiply((thisCartesian[0] * otherCartesian[1] - thisCartesian[1] * otherCartesian[0]));
 
-        return i.subtraction(j).addition(k);
+        return i.subtract(j).addition(k);
+    }
+
+    public boolean pointInTheSameDirection(Vector other) {
+        return (Math.abs(this.dotProduct(other) / (this.getModulus() * other.getModulus()) - 1) < EPSILON);
+    }
+
+    public Vector rotateAroundAxisBy(Vector axisUnit, double angle) {
+        // Rodrigues rotation formula
+        Vector rotatedVec;
+        Vector cosineTerm = this.scalarMultiply((float) Math.cos(angle));
+        Vector sineTerm = (axisUnit.crossProduct(this)).scalarMultiply((float) Math.sin(angle));
+
+        Vector dotTerm = axisUnit.scalarMultiply((float) ((axisUnit.dotProduct(this)) * (1 - Math.cos(angle))));
+
+        rotatedVec = cosineTerm.addition(sineTerm).addition(dotTerm);
+        return rotatedVec;
     }
 
 }

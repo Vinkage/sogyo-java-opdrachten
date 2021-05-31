@@ -1,4 +1,6 @@
-package nl.sogyo.javaopdrachten.raytracer;
+package nl.sogyo.javaopdrachten.raytracer.raytracer.shapes;
+
+import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Vector;
 
 public class ParametricLine {
     private Vector origin;
@@ -22,7 +24,4 @@ public class ParametricLine {
         return origin.addition(step);
     }
 
-    public void reverseDirection() {
-        directionVec = directionVec.scalarMultiply(-1f);
-    }
 }

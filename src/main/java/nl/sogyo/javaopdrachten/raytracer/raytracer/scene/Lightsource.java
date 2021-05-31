@@ -1,4 +1,4 @@
-package nl.sogyo.javaopdrachten.raytracer;
+package nl.sogyo.javaopdrachten.raytracer.raytracer.scene;
 
 public class Lightsource {
     private int brightness;

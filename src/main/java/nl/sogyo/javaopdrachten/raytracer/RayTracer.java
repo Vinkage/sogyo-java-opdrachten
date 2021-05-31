@@ -1,23 +1,32 @@
 package nl.sogyo.javaopdrachten.raytracer;
 
+import nl.sogyo.javaopdrachten.raytracer.raytracer.anglecalculator.AngleCalculator;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.anglecalculator.LineLineAngleCalculator;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.exceptions.NoIntersectionPossible;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.*;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Line;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.ParametricLine;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Sphere;
+
 public class RayTracer {
 
     public static void main(String[] args) {
         RayTracer rayTracer = new RayTracer();
 
-        // rayTracer.vectorConstructionTestDrive();
-        // rayTracer.vectorScalarOperations();
-        // rayTracer.vectorVectorOperations();
+        rayTracer.vectorConstructionTestDrive();
+        rayTracer.vectorScalarOperations();
+        rayTracer.vectorVectorOperations();
 
-        // rayTracer.lineTestDrive();
-        // rayTracer.angleCalculatorTestDrive();
-        // rayTracer.lineIntersecterTestDrive();
+        rayTracer.lineTestDrive();
+        rayTracer.angleCalculatorTestDrive();
+        rayTracer.lineIntersecterTestDrive();
 
-        // rayTracer.sphereTestDrive();
+        rayTracer.sphereTestDrive();
 
-        // rayTracer.viewPortTestDrive();
+        rayTracer.viewPortTestDrive();
 
-        // rayTracer.lightSourceTestDrive();
+        rayTracer.lightSourceTestDrive();
 
         rayTracer.sceneTestDrive();
     }
@@ -44,188 +53,208 @@ public class RayTracer {
 
         System.out.println("\tExample scene: ");
         System.out.println(scene);
+        Viewport viewport = scene.getViewport();
 
-
-
-        float[][] pixels = scene.getProjection();
-
-        for (float[] row: pixels) {
-            for (float pixel: row) {
-                if (pixel> 0)
-                    System.out.println(pixel);
-            }
+        try {
+            viewport.intersect(new Line(new Vector(0,0,0), new Vector(0,0,100)));
+        } catch (NoIntersectionPossible noIntersectionPossible) {
+            noIntersectionPossible.printStackTrace();
         }
+
+
+        // scene.draw();
+
+        // for (float[] row: pixels) {
+        //     for (float pixel: row) {
+        //         if (pixel> 0)
+        //             System.out.println(pixel);
+        //     }
+        // }
+
+
     }
 
-    // private void lightSourceTestDrive() {
-    //     System.out.println("\n\nTesting lightsource construction");
-    //     Lightsource lightsource = new Lightsource(100, new Vector(500, 500, 155));
-    //     Lightsource lightsource2 = new Lightsource(50, new Vector(500, -100, 75));
+    private void lightSourceTestDrive() {
+        System.out.println("\n\nTesting lightsource construction");
+        Lightsource lightsource = new Lightsource(100, new Vector(500, 500, 155));
+        Lightsource lightsource2 = new Lightsource(50, new Vector(500, -100, 75));
 
-    //     System.out.println("\t" + lightsource);
-    //     System.out.println("\t" + lightsource2);
-    // }
+        System.out.println("\t" + lightsource);
+        System.out.println("\t" + lightsource2);
+    }
 
-    // private void viewPortTestDrive() {
-    //     System.out.println("\n\nTesting viewport construction");
-    //     Vector[] vertices = new Vector[] {
-    //             new Vector(-400, 300, 50),
-    //             new Vector(400, 300, 50),
-    //             new Vector(400, -300, 50),
-    //     };
-    //     Viewport viewport = new Viewport(vertices);
-    //     System.out.println("\t" + viewport.toString());
+    private void viewPortTestDrive() {
+        System.out.println("\n\nTesting viewport construction");
+        Vector[] vertices = new Vector[] {
+                new Vector(-400, 300, 50),
+                new Vector(400, 300, 50),
+                new Vector(400, -300, 50),
+        };
+        Viewport viewport = new Viewport(vertices);
+        System.out.println("\t" + viewport.toString());
 
-    //     System.out.println("\tviewport.getVector(new Coordinate(10, 13))");
-    //     System.out.println("\t" + viewport.getVector(new Coordinate(10, 13)));
-    // }
+        System.out.println("\tviewport.getVector(new Coordinate(10, 13))");
+        //System.out.println("\t" + viewport.getVector(new Coordinate(10, 13)));
+    }
 
-    // private void sphereTestDrive() {
-    //     System.out.println("\n\nTesting line-sphere intersection calculator");
-    //     Vector origin = new Vector(0,0,0);
-    //     Float radius = 5f;
-    //     Sphere sphere = new Sphere(origin, radius);
+    private void sphereTestDrive() {
+        System.out.println("\n\nTesting line-sphere intersection calculator");
+        Vector origin = new Vector(0, 0, 0);
+        Float radius = 5f;
+        Sphere sphere = new Sphere(origin, radius);
 
-    //     System.out.println("\t" + sphere);
+        System.out.println("\t" + sphere);
 
-    //     Vector rayOrigin = new Vector(-6, -6, -6);
-    //     Vector rayDefiner = new Vector(6, 6, 6);
-    //     Line rayLine = new Line(rayOrigin, rayDefiner);
-    //     ParametricLine ray = rayLine.parametricRepresentation();
+        Vector rayOrigin = new Vector(-6, -6, -6);
+        Vector rayDefiner = new Vector(6, 6, 6);
+        Line rayLine = new Line(rayOrigin, rayDefiner);
+        ParametricLine ray = rayLine.parametricRepresentation();
 
-    //     Vector[] intersections = sphere.intersect(rayLine);
-    //     for (Vector intersection : intersections)
-    //         System.out.println("\tIntersection: " + intersection.toString());
+        Vector[] intersections = new Vector[0];
+        try {
+            intersections = sphere.intersect(rayLine);
+        } catch (Exception | NoIntersectionPossible e) {
 
-    //     rayOrigin = new Vector(10,10,5);
-    //     rayDefiner = new Vector(-10,-10,5);
-    //     rayLine = new Line(rayOrigin, rayDefiner);
+        }
+        for (Vector intersection : intersections)
+            System.out.println("\tIntersection: " + intersection.toString());
 
-    //     Vector[] intersectionsSingleton = sphere.intersect(rayLine);
-    //     System.out.print("\tShould be a singleton -> ");
-    //     for (Vector intersection : intersectionsSingleton)
-    //         System.out.println("\tIntersection: " + intersection.toString());
-    // }
+        rayOrigin = new Vector(10, 10, 5);
+        rayDefiner = new Vector(-10, -10, 5);
+        rayLine = new Line(rayOrigin, rayDefiner);
 
-    // private void lineIntersecterTestDrive() {
-    //     System.out.println("\n\nTesting line-line intersection calculator");
-    //     System.out.println("\tExample 1:");
-    //     Vector vector = new Vector(2,1,-2);
-    //     Vector otherVector = new Vector(8,-7,8);
-    //     Line line = new Line(vector, otherVector);
+        Vector[] intersectionsSingleton = new Vector[0];
+        try {
+            intersectionsSingleton = sphere.intersect(rayLine);
+        } catch (NoIntersectionPossible noIntersectionPossible) {
+            noIntersectionPossible.printStackTrace();
+        }
+        System.out.print("\tShould be a singleton -> ");
+        for (Vector intersection : intersectionsSingleton)
+            System.out.println("\tIntersection: " + intersection.toString());
+    }
 
-    //     Vector vector1 = new Vector(-1,-10,5);
-    //     Vector otherVector1 = new Vector(5, -3,3);
-    //     Line otherLine = new Line(vector1, otherVector1);
 
-    //     // Should be (5, -3, 3)
-    //     Intersection intersection = line.intersect(otherLine);
-    //     System.out.println("\t" + intersection);
+    private void lineIntersecterTestDrive() {
+        System.out.println("\n\nTesting line-line intersection calculator");
+        System.out.println("\tExample 1:");
+        Vector vector = new Vector(2,1,-2);
+        Vector otherVector = new Vector(8,-7,8);
+        Line line = new Line(vector, otherVector);
 
-    //     System.out.println("\tExample 2:");
-    //     Vector vector2 = new Vector(1,4,-2);
-    //     Vector otherVector2 = new Vector(3,8,6);
-    //     Line line2 = new Line(vector2, otherVector2);
+        Vector vector1 = new Vector(-1,-10,5);
+        Vector otherVector1 = new Vector(5, -3,3);
+        Line otherLine = new Line(vector1, otherVector1);
 
-    //     Vector vector21 = new Vector(0,4,8);
-    //     Vector otherVector21 = new Vector(6, 10,-10);
-    //     Line otherLine2 = new Line(vector21, otherVector21);
+        // Should be (5, -3, 3)
+        Intersection intersection = line.intersect(otherLine);
+        System.out.println("\t" + intersection);
 
-    //     // Should be (2, 6, 2)
-    //     Intersection intersection2 = line2.intersect(otherLine2);
-    //     System.out.println("\t" + intersection2);
-    // }
+        System.out.println("\tExample 2:");
+        Vector vector2 = new Vector(1,4,-2);
+        Vector otherVector2 = new Vector(3,8,6);
+        Line line2 = new Line(vector2, otherVector2);
 
-    // private void angleCalculatorTestDrive() {
-    //     System.out.println("\n\nTesting angle calculator");
-    //     Vector vector = new Vector(1,2,3);
-    //     Vector otherVector = new Vector(4,5,6);
-    //     Line line = new Line(vector, otherVector);
-    //     ParametricLine parametricLine = line.parametricRepresentation();
+        Vector vector21 = new Vector(0,4,8);
+        Vector otherVector21 = new Vector(6, 10,-10);
+        Line otherLine2 = new Line(vector21, otherVector21);
 
-    //     Vector vector1 = new Vector(7,8,9);
-    //     Vector otherVector1 = new Vector(20,-11,2);
-    //     Line otherLine = new Line(vector1, otherVector1);
-    //     ParametricLine otherParametricLine = otherLine.parametricRepresentation();
+        // Should be (2, 6, 2)
+        Intersection intersection2 = line2.intersect(otherLine2);
+        System.out.println("\t" + intersection2);
+    }
 
-    //     AngleCalculator angleCalculator = new AngleCalculator(parametricLine, otherParametricLine);
+    private void angleCalculatorTestDrive() {
+        System.out.println("\n\nTesting angle calculator");
+        Vector vector = new Vector(1,2,3);
+        Vector otherVector = new Vector(4,5,6);
+        Line line = new Line(vector, otherVector);
+        ParametricLine parametricLine = line.parametricRepresentation();
 
-    //     Float angle = angleCalculator.calculateAngle();
-    //     System.out.println("\t" + angle + "(radians)");
-    // }
+        Vector vector1 = new Vector(7,8,9);
+        Vector otherVector1 = new Vector(20,-11,2);
+        Line otherLine = new Line(vector1, otherVector1);
+        ParametricLine otherParametricLine = otherLine.parametricRepresentation();
 
-    // private void lineTestDrive() {
-    //     Vector vector = new Vector(1,2,3);
-    //     Vector otherVector = new Vector(4,5,6);
-    //     Line line = new Line(vector, otherVector);
-    //     ParametricLine parametricLine = line.parametricRepresentation();
-    // }
+        AngleCalculator angleCalculator = new LineLineAngleCalculator(parametricLine, otherParametricLine);
 
-    // private void vectorVectorOperations() {
-    //     System.out.println("\n\nVector vector operations");
-    //     Vector vector = new Vector(1,2,3);
-    //     Vector otherVector = new Vector(4,5,6);
+        Float angle = angleCalculator.calculateAngle();
+        System.out.println("\t" + angle + "(radians)");
+    }
 
-    //     // addition
-    //     Vector addedVector = vector.addition(otherVector);
-    //     System.out.println("\t" + addedVector.toString());
-    //     addedVector = vector.subtraction(otherVector);
-    //     System.out.println("\t" + addedVector.toString());
+    private void lineTestDrive() {
+        Vector vector = new Vector(1,2,3);
+        Vector otherVector = new Vector(4,5,6);
+        Line line = new Line(vector, otherVector);
+        ParametricLine parametricLine = line.parametricRepresentation();
+    }
 
-    //     // dot
-    //     Float dotScalar = vector.dotProduct(otherVector);
-    //     System.out.println("\t" + dotScalar);
+    private void vectorVectorOperations() {
+        System.out.println("\n\nVector vector operations");
+        Vector vector = new Vector(1,2,3);
+        Vector otherVector = new Vector(4,5,6);
 
-    //     // cross
-    //     System.out.println("Computing cross product");
-    //     vector = new Vector(1,2,3);
-    //     otherVector = new Vector(4,5,6);
-    //     Vector crossProduct = vector.crossProduct(otherVector);
-    //     System.out.println("\t" + crossProduct.toString());
-    // }
+        // addition
+        Vector addedVector = vector.addition(otherVector);
+        System.out.println("\t" + addedVector.toString());
+        addedVector = vector.subtract(otherVector);
+        System.out.println("\t" + addedVector.toString());
 
-    // private void vectorScalarOperations() {
-    //     System.out.println("\n\nScalar vector operations");
-    //     Vector vector = new Vector(1,2,3);
-    //     System.out.println(vector.toString());
+        // dot
+        Float dotScalar = vector.dotProduct(otherVector);
+        System.out.println("\t" + dotScalar);
 
-    //     // in place shift and scale modulus, and rotate
-    //     vector.scalarModulusShift(3f);
-    //     System.out.println(vector.toString());
-    //     vector.scaleModulus(3f);
-    //     System.out.println(vector.toString());
-    //     vector.rotation(3f, 3f);
-    //     System.out.println(vector.toString());
+        // cross
+        System.out.println("Computing cross product");
+        vector = new Vector(1,2,3);
+        otherVector = new Vector(4,5,6);
+        Vector crossProduct = vector.crossProduct(otherVector);
+        System.out.println("\t" + crossProduct.toString());
+    }
 
-    //     // shift and scale producing new vec, and rotate
-    //     Vector newVec;
-    //     // newVec = vector.scaleModulusAndReturn(3f);
-    //     newVec = vector.scalarModulusShiftAndReturn(3f);
-    //     System.out.println(newVec.toString());
-    //     newVec = vector.scalarModulusShiftAndReturn(3f);
-    //     System.out.println(newVec.toString());
-    //     newVec = vector.rotationAndReturn(3f, 0f);
-    //     System.out.println(newVec.toString());
+    private void vectorScalarOperations() {
+        System.out.println("\n\nScalar vector operations");
+        Vector vector = new Vector(1,2,3);
+        System.out.println(vector.toString());
 
-    //     // To unit vec
-    //     newVec = vector.toUnitLengthAndReturn();
-    //     System.out.println(newVec.toString());
-    //     vector.toUnitLength();
-    //     System.out.println(vector.toString());
-    // }
+        // in place shift and scale modulus, and rotate
+        vector.scalarModulusShift(3f);
+        System.out.println(vector.toString());
+        vector.scaleModulus(3f);
+        System.out.println(vector.toString());
+        System.out.println("\nRotation by pi around z and pi around (X xx Y) in place of: " + vector.toStringWithPolar());
+        vector.rotationInPlace((float) (Math.PI), (float) (Math.PI));
+        System.out.println(vector.toStringWithPolar() + "\n");
 
-    // private void vectorConstructionTestDrive() {
-    //     // using cartesian ints
-    //     Vector vector = new Vector(1, 2,3);
-    //     System.out.println("Made a new vec using integer cartesian coords: \n\t" + vector.toString());
-    //     // using cartesian doubles
-    //     vector = new Vector(1.0, 2.0,3.0);
-    //     System.out.println("Made a new vec using double cartesian coords: \n\t" + vector.toString());
-    //     // using cartesian floats
-    //     vector = new Vector(1.0f, 2.0f,3.0f);
-    //     System.out.println("Made a new vec using floats cartesian coords: \n\t" + vector.toString());
-    //     // using float polar coords
-    //     vector = Vector.fromPolar(3.0f, 1.0f, 1.0f);
-    //     System.out.println("Made a new vec using float polar coords: \n\t" + vector.toString());
-    // }
+        // shift and scale producing new vec, and rotate
+        Vector newVec;
+        // newVec = vector.scaleModulusAndReturn(3f);
+        newVec = vector.scalarModulusShiftAndReturn(3f);
+        System.out.println(newVec.toString());
+        newVec = vector.scalarModulusShiftAndReturn(3f);
+        System.out.println(newVec.toString());
+        newVec = vector.rotationAndReturn(3f, 0f);
+        System.out.println(newVec.toString());
+
+        // To unit vec
+        newVec = vector.toUnitLengthAndReturn();
+        System.out.println(newVec.toString());
+        vector.toUnitLength();
+        System.out.println(vector.toString());
+    }
+
+    private void vectorConstructionTestDrive() {
+        // using cartesian ints
+        Vector vector = new Vector(1, 2,3);
+        System.out.println("Made a new vec using integer cartesian coords: \n\t" + vector.toString());
+        // using cartesian doubles
+        vector = new Vector(1.0, 2.0,3.0);
+        System.out.println("Made a new vec using double cartesian coords: \n\t" + vector.toString());
+        // using cartesian floats
+        vector = new Vector(1.0f, 2.0f,3.0f);
+        System.out.println("Made a new vec using floats cartesian coords: \n\t" + vector.toString());
+        // using float polar coords
+        vector = Vector.fromPolar(3.0f, 1.0f, 1.0f);
+        System.out.println("Made a new vec using float polar coords: \n\t" + vector.toString());
+    }
 }

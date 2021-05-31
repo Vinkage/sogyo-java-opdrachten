@@ -1,4 +1,9 @@
-package nl.sogyo.javaopdrachten.raytracer;
+package nl.sogyo.javaopdrachten.raytracer.raytracer.shapes;
+
+import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Intersection;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Vector;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.anglecalculator.AngleCalculator;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.anglecalculator.LineLineAngleCalculator;
 
 public class Line {
     private Vector origin;
@@ -11,14 +16,14 @@ public class Line {
     }
 
     public ParametricLine parametricRepresentation() {
-        Vector diff = bindingPoint.subtraction(origin);
+        Vector diff = bindingPoint.subtract(origin);
         // System.out.println(diff);
         Vector directionUnitVec = diff.toUnitLengthAndReturn();
         return new ParametricLine(this.origin, directionUnitVec);
     }
 
     public Intersection intersect(Line otherLine) {
-        Vector vectorBetween = origin.subtraction(otherLine.origin);
+        Vector vectorBetween = origin.subtract(otherLine.origin);
         Vector direction = parametricRepresentation().getDirectionVec();
         Vector otherDirection = otherLine.parametricRepresentation().getDirectionVec();
 
@@ -27,12 +32,6 @@ public class Line {
 
         double crossProductDirectionsNorm = Math.abs(directionsCrossproduct.getModulus());
         double crossProductBetweenNorm = Math.abs(betweenCrossproduct.getModulus());
-        // System.out.println(origin);
-        // System.out.println(otherLine.origin);
-        // System.out.println(betweenCrossproduct);
-        // System.out.println(directionsCrossproduct);
-
-        // https://math.stackexchange.com/questions/270767/find-intersection-of-two-3d-lines/271366
 
         Vector intersectionPoint;
         if (origin.samePoint(otherLine.origin))
@@ -42,8 +41,8 @@ public class Line {
         } else
             intersectionPoint = parametricRepresentation().getVectorOfPointOnLine((float) (crossProductBetweenNorm / crossProductDirectionsNorm));
 
-        AngleCalculator angleCalculator = new AngleCalculator(parametricRepresentation(), otherLine.parametricRepresentation());
-        Float angle = angleCalculator.calculateAngle();
+        AngleCalculator angleCalculator = new LineLineAngleCalculator(parametricRepresentation(), otherLine.parametricRepresentation());
+        float angle = angleCalculator.calculateAngle();
         return new Intersection(intersectionPoint, angle);
     }
 }

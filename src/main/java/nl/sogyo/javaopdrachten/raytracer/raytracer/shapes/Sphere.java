@@ -1,4 +1,7 @@
-package nl.sogyo.javaopdrachten.raytracer;
+package nl.sogyo.javaopdrachten.raytracer.raytracer.shapes;
+
+import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Vector;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.exceptions.NoIntersectionPossible;
 
 public class Sphere implements Shape {
     private Vector origin;
@@ -16,14 +19,14 @@ public class Sphere implements Shape {
         Vector Ro = ray.getOrigin();
         Vector Rd = ray.getDirectionVec();
 
-        Vector diffSandRo = this.origin.subtraction(Ro);
+        Vector diffSandRo = this.origin.subtract(Ro);
         float lengthFromRoTo_t = diffSandRo.dotProduct(Rd);
 
 
         Vector t = ray.getVectorOfPointOnLine(lengthFromRoTo_t);
 
         // switching to circle interpretation
-        Vector diffSand_t = this.origin.subtraction(t);
+        Vector diffSand_t = this.origin.subtract(t);
         float y = diffSand_t.getModulus();
 
         if (y > radius) throw new NoIntersectionPossible();
