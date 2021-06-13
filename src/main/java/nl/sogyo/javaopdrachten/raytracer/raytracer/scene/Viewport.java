@@ -22,8 +22,4 @@ public class Viewport extends Rectangle {
         return vector;
     }
 
-
-    public void orientToViewPoint(Vector viewpoint) {
-
-    }
 }

@@ -1,7 +1,6 @@
 package nl.sogyo.javaopdrachten.raytracer;
 
 import nl.sogyo.javaopdrachten.raytracer.raytracer.anglecalculator.AngleCalculator;
-import nl.sogyo.javaopdrachten.raytracer.raytracer.anglecalculator.LineLineAngleCalculator;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.exceptions.NoIntersectionPossible;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.*;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Line;
@@ -42,12 +41,19 @@ public class RayTracer {
                 new Vector(0, 0, 0),
                 new Viewport(vertices),
                 new Lightsource[] {
-                        new Lightsource(100, new Vector(500, 500, 155)),
-                        new Lightsource(50, new Vector(500, -100, 75)),
+                        // new Lightsource(100, new Vector(500, 500, 155)),
+                        // new Lightsource(50, new Vector(500, -100, 75)),
+                        // new Lightsource(50, new Vector(0, 0, 100)),
+                        new Lightsource(100, new Vector(0, 50, 100)),
+                        new Lightsource(50, new Vector(0, 0, 0)),
+                        // new Lightsource(50, new Vector(190, 0, 130)),
+
                 },
                 new Shape[] {
-                        new Sphere(new Vector(0, 0, 100), 200),
-                        new Sphere(new Vector(100, 150, 130), 50),
+                        // new Sphere(new Vector(0, 0, 100), 200),
+                        new Sphere(new Vector(0, 0, 100), 30),
+                        // new Sphere(new Vector(300, 0, 130), 50),
+                        // new Sphere(new Vector(0, 0, 300), 50),
                 }
         );
 
@@ -55,14 +61,18 @@ public class RayTracer {
         System.out.println(scene);
         Viewport viewport = scene.getViewport();
 
+        AngleCalculator angleCalculator = new AngleCalculator();
+
         try {
-            viewport.intersect(new Line(new Vector(0,0,0), new Vector(0,0,100)));
+            Line line = new Line(new Vector(0,0,0), new Vector(800,600,100));
+            Vector[] viewportIntersections = viewport.intersect(line);
+            Intersection intersection = new Intersection(viewportIntersections[0], angleCalculator.calculateAngle(line, viewport), line, viewport);
+            System.out.println(intersection);
         } catch (NoIntersectionPossible noIntersectionPossible) {
             noIntersectionPossible.printStackTrace();
         }
 
-
-        // scene.draw();
+        scene.draw();
 
         // for (float[] row: pixels) {
         //     for (float pixel: row) {
@@ -108,16 +118,21 @@ public class RayTracer {
         Vector rayOrigin = new Vector(-6, -6, -6);
         Vector rayDefiner = new Vector(6, 6, 6);
         Line rayLine = new Line(rayOrigin, rayDefiner);
-        ParametricLine ray = rayLine.parametricRepresentation();
+        ParametricLine ray = rayLine.parametric();
 
-        Vector[] intersections = new Vector[0];
+        AngleCalculator angleCalculator = new AngleCalculator();
+        Vector[] intersectionPoints = new Vector[0];
         try {
-            intersections = sphere.intersect(rayLine);
-        } catch (Exception | NoIntersectionPossible e) {
+            intersectionPoints = sphere.intersect(rayLine);
+            for (Vector point : intersectionPoints) {
+                Intersection intersection = new Intersection(point, angleCalculator.calculateAngle(rayLine, sphere, point), rayLine, sphere);
+                System.out.println("\n" +intersection);
+            }
 
+        } catch (Exception | NoIntersectionPossible e) {
+            e.printStackTrace();
         }
-        for (Vector intersection : intersections)
-            System.out.println("\tIntersection: " + intersection.toString());
+
 
         rayOrigin = new Vector(10, 10, 5);
         rayDefiner = new Vector(-10, -10, 5);
@@ -126,6 +141,13 @@ public class RayTracer {
         Vector[] intersectionsSingleton = new Vector[0];
         try {
             intersectionsSingleton = sphere.intersect(rayLine);
+            Intersection intersection = new Intersection(
+                    intersectionsSingleton[0],
+                    angleCalculator.calculateAngle(rayLine, sphere, intersectionsSingleton[0]),
+                    rayLine,
+                    sphere
+            );
+            System.out.println("\n" +intersection);
         } catch (NoIntersectionPossible noIntersectionPossible) {
             noIntersectionPossible.printStackTrace();
         }
@@ -147,8 +169,8 @@ public class RayTracer {
         Line otherLine = new Line(vector1, otherVector1);
 
         // Should be (5, -3, 3)
-        Intersection intersection = line.intersect(otherLine);
-        System.out.println("\t" + intersection);
+        Vector[] intersection = line.intersect(otherLine);
+        System.out.println("\t" + intersection[0]);
 
         System.out.println("\tExample 2:");
         Vector vector2 = new Vector(1,4,-2);
@@ -160,8 +182,8 @@ public class RayTracer {
         Line otherLine2 = new Line(vector21, otherVector21);
 
         // Should be (2, 6, 2)
-        Intersection intersection2 = line2.intersect(otherLine2);
-        System.out.println("\t" + intersection2);
+        Vector[] intersection2 = line2.intersect(otherLine2);
+        System.out.println("\t" + intersection2[0]);
     }
 
     private void angleCalculatorTestDrive() {
@@ -169,16 +191,16 @@ public class RayTracer {
         Vector vector = new Vector(1,2,3);
         Vector otherVector = new Vector(4,5,6);
         Line line = new Line(vector, otherVector);
-        ParametricLine parametricLine = line.parametricRepresentation();
+        ParametricLine parametricLine = line.parametric();
 
         Vector vector1 = new Vector(7,8,9);
         Vector otherVector1 = new Vector(20,-11,2);
         Line otherLine = new Line(vector1, otherVector1);
-        ParametricLine otherParametricLine = otherLine.parametricRepresentation();
+        ParametricLine otherParametricLine = otherLine.parametric();
 
-        AngleCalculator angleCalculator = new LineLineAngleCalculator(parametricLine, otherParametricLine);
+        AngleCalculator angleCalculator = new AngleCalculator();
 
-        Float angle = angleCalculator.calculateAngle();
+        Float angle = angleCalculator.calculateAngle(line, otherLine);
         System.out.println("\t" + angle + "(radians)");
     }
 
@@ -186,7 +208,7 @@ public class RayTracer {
         Vector vector = new Vector(1,2,3);
         Vector otherVector = new Vector(4,5,6);
         Line line = new Line(vector, otherVector);
-        ParametricLine parametricLine = line.parametricRepresentation();
+        ParametricLine parametricLine = line.parametric();
     }
 
     private void vectorVectorOperations() {

@@ -1,5 +1,6 @@
 package nl.sogyo.javaopdrachten.raytracer.raytracer.shapes;
 
+import nl.sogyo.javaopdrachten.raytracer.raytracer.anglecalculator.AngleCalculator;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.exceptions.NoIntersectionPossible;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Vector;
 
@@ -11,6 +12,7 @@ public class Rectangle implements Shape {
     protected ParametricLine xRay, yRay;
     protected Vector normal;
     protected int width, height;
+    private static final double EPSILON = 1e-8;
 
     public Rectangle(Vector[] vertices) {
         assert vertices.length == 3;
@@ -30,89 +32,105 @@ public class Rectangle implements Shape {
 
     @Override
     public Vector[] intersect(Line line) throws NoIntersectionPossible {
-        return new Vector[0];
+        ParametricLine ray = line.parametric();
+        Vector rayOrigin = ray.getOrigin();
+        Vector rayDirection = ray.direction();
+
+        float normaalDotRayDirection = normal.dotProduct(rayDirection);
+
+        if (Math.abs(normaalDotRayDirection) < EPSILON) throw new NoIntersectionPossible(ray, this);
+
+        float scalaireProjectieAfstandOpNormaal = corner.subtract(rayOrigin).dotProduct(normal);
+
+        float rayRichtingsGrootteInNormaalRichting = rayDirection.dotProduct(normal);
+
+        float scalarOmPuntTeBereiken = scalaireProjectieAfstandOpNormaal / rayRichtingsGrootteInNormaalRichting;
+
+        Vector vectorVanRayOriginTotPuntInRechtoekVlak = rayDirection.scalarMultiply(scalarOmPuntTeBereiken);
+
+        Vector puntInRechthoekVlak = rayOrigin.addition(vectorVanRayOriginTotPuntInRechtoekVlak);
+
+        float afstandTussenHoekEnPuntInRechthoekVlakX = Math.abs(puntInRechthoekVlak.subtract(corner).dotProduct(xRay.direction()));
+        float afstandTussenHoekEnPuntInRechthoekVlakY = Math.abs(puntInRechthoekVlak.subtract(corner).dotProduct(yRay.direction()));
+
+        float edgeX = xRay.direction().scalarMultiply((float) width).getModulus();
+        float edgeY = yRay.direction().scalarMultiply((float) height).getModulus();
+
+        // System.out.println(afstandTussenHoekEnPuntInRechthoekVlakY);
+        // System.out.println(afstandTussenHoekEnPuntInRechthoekVlakX);
+        if (afstandTussenHoekEnPuntInRechthoekVlakX <= edgeX && afstandTussenHoekEnPuntInRechthoekVlakY <= edgeY) {
+            return new Vector[] {puntInRechthoekVlak};
+        }
+
+        throw new NoIntersectionPossible(ray, this);
+    }
+
+    @Override
+    public Float calculateAngle(Line line, Vector nearestIntersectionPoint) {
+        AngleCalculator angleCalculator = new AngleCalculator();
+        return angleCalculator.calculateAngle(line, this);
     }
 
     private void setRaysAndDimensions() {
         setXRayToLongestAndYRayToShortestSide();
 
-        normal = xRay.getDirectionVec().crossProduct(yRay.getDirectionVec());
+        normal = xRay.direction().crossProduct(yRay.direction());
         float phi = normal.getPhi();
         float theta = normal.getTheta();
 
-
         Vector z;
         z = new Vector(0,0,1);
-
-        float toZPhi = z.getPhi() - phi;
-        float toZTheta = z.getTheta() - theta;
-        System.out.println(normal.dotProduct(z) + " " + toZPhi + " " + toZTheta);
-        if (normal.dotProduct(z) < 0) {
-            toZPhi = toZPhi - (float) Math.PI;
-        }
-        System.out.println("normal");
-        System.out.println(this);
-        normal.rotationInPlace(toZTheta, toZPhi);
-        System.out.println(this + "\n");
-
-        System.out.println("x");
-        System.out.println(this);
-        xRay.getDirectionVec().rotationInPlace(toZTheta, toZPhi);
-        System.out.println(this + "\n");
-
-        System.out.println("y");
-        System.out.println(this);
-        yRay.getDirectionVec().rotationInPlace(toZTheta, toZPhi);
-        System.out.println(this + "\n");
-
-        System.out.println("corner");
-        System.out.println(this);
-        corner.rotationInPlace(toZTheta, toZPhi);
-        System.out.println(this + "\n");
-
-
+        float zphi = z.getPhi();
+        float ztheta = z.getTheta();
 
         Vector y;
         y = new Vector(0,1,0);
-        float toYTheta = y.getTheta() - yRay.getDirectionVec().getTheta();
-        if (y.dotProduct(yRay.getDirectionVec()) < 0) {
-            toYTheta = (float) (toYTheta - Math.PI);
+
+        //rotating to the xy plane
+        float toZPhi = zphi - phi;
+        float toZTheta = ztheta - theta;
+
+        // check which direction the normal is compared to the z dimension of the space
+        if (normal.dotProduct(z) < 0) {
+            toZPhi = toZPhi - (float) Math.PI;
         }
 
-        System.out.println("Rotating Y to y");
-        System.out.println(this);
-        yRay.getDirectionVec().rotationInPlace(toYTheta, 0f);
-        System.out.println(this + "\n");
+        rotateRectangle(toZTheta, toZPhi);
 
-        System.out.println("Rotating X accordingly");
-        System.out.println(this);
-        xRay.getDirectionVec().rotationInPlace(toYTheta, 0f);
-        System.out.println(this + "\n");
+        // check if in the sine principal region, correct otherwise
+        float toYTheta = y.getTheta() - yRay.direction().getTheta();
+        // if (y.dotProduct(yRay.getDirectionVec()) < 0) {
+        //     toYTheta = (float) (toYTheta - Math.PI);
+        // }
 
-        System.out.println("Rotating corner accordingly");
-        System.out.println(this);
-        corner.rotationInPlace(toYTheta, 0f);
-        System.out.println(this + "\n");
+        rotateRectangle(toYTheta, 0f);
         chooseTopLeftCorner();
-
-        // TODO reverse rotations
+        rotateRectangle(-toYTheta, 0f);
     }
 
     private void chooseTopLeftCorner() {
-        if (xRay.getDirectionVec().getX() < 0) {
-            corner.additionInPlace(xRay.getDirectionVec().scalarMultiply((float) width));
-            xRay.getDirectionVec().scalarMultiplyInPlace(-1f);
+        if (xRay.direction().getX() < 0) {
+            corner.additionInPlace(xRay.direction().scalarMultiply((float) width));
+            xRay.direction().scalarMultiplyInPlace(-1f);
         }
-        if (yRay.getDirectionVec().getY() > 0) {
-            corner.additionInPlace(yRay.getDirectionVec().scalarMultiply((float) height));
-            yRay.getDirectionVec().scalarMultiplyInPlace(-1f);
+        if (yRay.direction().getY() > 0) {
+            corner.additionInPlace(yRay.direction().scalarMultiply((float) height));
+            yRay.direction().scalarMultiplyInPlace(-1f);
         }
     }
 
+    private void rotateRectangle(float phi, float theta) {
+        // rotate normal, corner, and rays defining rectangle into xy plane
+        normal.rotationInPlace(phi, theta);
+        xRay.direction().rotationInPlace(phi, theta);
+        yRay.direction().rotationInPlace(phi, theta);
+        corner.rotationInPlace(phi, theta);
+    }
+
     public String toString() {
-        return "corner: (" + corner.getX() + ", " + corner.getY() + ", " + corner.getZ() + ") " +
-                ", x direction: (" + xRay.getDirectionVec().getX() + ", " + xRay.getDirectionVec().getY() + ", " + xRay.getDirectionVec().getZ() + ") " +
-                ", y direction: (" + yRay.getDirectionVec().getX() + ", " + yRay.getDirectionVec().getY() + ", " + yRay.getDirectionVec().getZ() + ") " +
+        return "Rectangle with corner: (" + corner.getX() + ", " + corner.getY() + ", " + corner.getZ() + ") " +
+                ", x direction: (" + xRay.direction().getX() + ", " + xRay.direction().getY() + ", " + xRay.direction().getZ() + ") " +
+                ", y direction: (" + yRay.direction().getX() + ", " + yRay.direction().getY() + ", " + yRay.direction().getZ() + ") " +
                 ", normal: (" + normal.getX() + ", " + normal.getY() + ", " + normal.getZ() + ") " +
                 ", WidthxHeight: " + width + "x" + height;
     }
@@ -121,17 +139,17 @@ public class Rectangle implements Shape {
         Vector edge = point.subtract(corner);
         Vector otherEdge = otherPoint.subtract(corner);
         if (edge.getModulus() >= otherEdge.getModulus()) {
-            xRay = new Line(corner, point).parametricRepresentation();
+            xRay = new Line(corner, point).parametric();
             width = Math.round(edge.getModulus());
 
-            yRay = new Line(corner, otherPoint).parametricRepresentation();
+            yRay = new Line(corner, otherPoint).parametric();
             height = Math.round(otherEdge.getModulus());
 
         } else {
-            yRay = new Line(corner, point).parametricRepresentation();
+            yRay = new Line(corner, point).parametric();
             height = Math.round(edge.getModulus());
 
-            xRay = new Line(corner, otherPoint).parametricRepresentation();
+            xRay = new Line(corner, otherPoint).parametric();
             width = Math.round(otherEdge.getModulus());
         }
     }
@@ -148,5 +166,13 @@ public class Rectangle implements Shape {
         verticesList.remove(corner);
         point = verticesList.remove(0);
         otherPoint = verticesList.remove(0);
+    }
+
+    public Vector getNormal() {
+        return normal;
+    }
+
+    public Vector getNormal(Vector intersectionPoint) {
+        return getNormal();
     }
 }

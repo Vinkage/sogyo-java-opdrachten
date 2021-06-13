@@ -11,7 +11,7 @@ public class ParametricLine {
         this.directionVec = directionVec;
     }
 
-    public Vector getDirectionVec() {
+    public Vector direction() {
         return directionVec;
     }
 

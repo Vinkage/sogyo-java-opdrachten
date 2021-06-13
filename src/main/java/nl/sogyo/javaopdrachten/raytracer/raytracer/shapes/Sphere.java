@@ -1,5 +1,6 @@
 package nl.sogyo.javaopdrachten.raytracer.raytracer.shapes;
 
+import nl.sogyo.javaopdrachten.raytracer.raytracer.anglecalculator.AngleCalculator;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Vector;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.exceptions.NoIntersectionPossible;
 
@@ -15,9 +16,9 @@ public class Sphere implements Shape {
 
     @Override
     public Vector[] intersect(Line line) throws NoIntersectionPossible {
-        ParametricLine ray = line.parametricRepresentation();
+        ParametricLine ray = line.parametric();
         Vector Ro = ray.getOrigin();
-        Vector Rd = ray.getDirectionVec();
+        Vector Rd = ray.direction();
 
         Vector diffSandRo = this.origin.subtract(Ro);
         float lengthFromRoTo_t = diffSandRo.dotProduct(Rd);
@@ -29,7 +30,7 @@ public class Sphere implements Shape {
         Vector diffSand_t = this.origin.subtract(t);
         float y = diffSand_t.getModulus();
 
-        if (y > radius) throw new NoIntersectionPossible();
+        if (y > radius) throw new NoIntersectionPossible(ray, this);
 
         if (Math.abs(this.radius - y) < EPSILON) {
             Vector[] intersections = new Vector[1];
@@ -48,9 +49,25 @@ public class Sphere implements Shape {
 
     }
 
+    @Override
+    public Float calculateAngle(Line line, Vector nearestIntersectionPoint) {
+        AngleCalculator angleCalculator = new AngleCalculator();
+        return angleCalculator.calculateAngle(line, this, nearestIntersectionPoint);
+    }
+
+    @Override
+    public Vector getNormal(Vector intersectionPoint) {
+        Vector sphereNormal = intersectionPoint.subtract(origin).toUnitLengthAndReturn();
+        return sphereNormal;
+    }
+
     public String toString() {
         return "sphere: " +
                 "Center - " + origin +
                 ", Radius - " + radius;
+    }
+
+    public Vector getOrigin() {
+        return origin;
     }
 }
