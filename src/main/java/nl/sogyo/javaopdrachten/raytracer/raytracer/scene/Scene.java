@@ -94,6 +94,9 @@ public class Scene {
                 brightness = brightness + reflectionFromInsideShape(intersection, lightsource, lineToLight);
             }
         }
+        // if (brightness > 0) {
+        //     System.out.println("hello");
+        // }
         return brightness;
     }
 
@@ -111,10 +114,31 @@ public class Scene {
                 boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
                 boolean outside = lightSourceOutside && pointIsInRightDirection;
 
-                if (outside) return 0f;
+                boolean betweenViewPortAndViewpoint = false;
+                try {
+                    Vector viewportIntersectCheck = viewport.intersect(lineToLight)[0];
+                    Vector viewportNormal = viewport.getNormal();
+
+                    Vector toPoint = point.subtract(viewpoint);
+                    float toPointNormalToViewport = toPoint.dotProduct(viewportNormal);
+
+                    float viewPortViewPointDistance = viewport.getOrigin().subtract(viewpoint).dotProduct(viewportNormal);
+
+
+                    betweenViewPortAndViewpoint = toPointNormalToViewport < viewPortViewPointDistance; // && notTooBig;
+                } catch (NoIntersectionPossible e) {
+
+                }
+
+                if (outside && betweenViewPortAndViewpoint) {
+                    continue;
+                }
+                if (outside) {
+                    return 0f;
+                }
             }
         } catch (NoIntersectionPossible noIntersectionPossible) {
-
+            return 0f;
         }
 
         ArrayList<Shape> copy = new ArrayList<>(myShapes);
@@ -172,8 +196,34 @@ public class Scene {
                     boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
                     boolean doesntblock = pointIsToofar && pointIsInRightDirection;
 
+                    // boolean betweenViewPortAndViewpoint = false;
+                    // try {
+                    //     Vector viewportIntersect = viewport.intersect(lineToLight)[0];
+                    //     Vector toViewPoint = viewpoint.subtract(point);
+                    //     Vector toViewPort = viewportIntersect.subtract(point);
+                    //     betweenViewPortAndViewpoint = toViewPoint.dotProduct(toViewPort) < 0;
+                    // } catch (NoIntersectionPossible e) {
+
+                    // }
+                    boolean betweenViewPortAndViewpoint = false;
+                    try {
+                        Vector viewportIntersectCheck = viewport.intersect(lineToLight)[0];
+                        Vector viewportNormal = viewport.getNormal();
+
+                        Vector toPoint = point.subtract(viewpoint);
+                        float toPointNormalToViewport = toPoint.dotProduct(viewportNormal);
+
+                        float viewPortViewPointDistance = viewport.getOrigin().subtract(viewpoint).dotProduct(viewportNormal);
+
+
+                        betweenViewPortAndViewpoint = toPointNormalToViewport < viewPortViewPointDistance; // && notTooBig;
+                    } catch (NoIntersectionPossible e) {
+
+                    }
+
                     if (doesntblock) continue;
                     else if (!pointIsInRightDirection) continue;
+                    else if (betweenViewPortAndViewpoint) continue;
                     return 0;
                 }
 
@@ -185,7 +235,6 @@ public class Scene {
     }
 
     private Intersection nearestIntersection(Line line, float distance) {
-        AngleCalculator angleCalculator = new AngleCalculator();
         Intersection intersection = null;
         Intersection nearestIntersection = null;
 
@@ -200,19 +249,23 @@ public class Scene {
             for (Vector point: intersectionPoints) {
 
 
-                if (line.parametric().direction().dotProduct(point.subtract(viewpoint)) > 0) {
+                boolean linePointsTowardsIntersSection = line.parametric().direction().dotProduct(point.subtract(viewpoint)) > 0;
+                boolean pastViewPort = point.subtract(viewpoint).getModulus() > distance;
+                if (linePointsTowardsIntersSection && pastViewPort) {
                     intersection = new Intersection(
                             point,
                             shape.calculateAngle(line, point),
                             line,
                             shape
                     );
+
+
                     if (nearestIntersection == null) {
                         nearestIntersection = intersection;
                         continue;
                     }
 
-                    if (nearestIntersection.getPoint().subtract(viewpoint).getModulus() > point.subtract(viewpoint).getModulus()) {
+                    if (nearestIntersection.getPoint().subtract(viewpoint).getModulus() < point.subtract(viewpoint).getModulus()) {
                     } else {
                         nearestIntersection = intersection;
                     }
@@ -220,7 +273,7 @@ public class Scene {
             }
         }
 
-        return intersection;
+        return nearestIntersection;
     }
 
     private void brightnessValueToImage(int row, int col, float brightness) {

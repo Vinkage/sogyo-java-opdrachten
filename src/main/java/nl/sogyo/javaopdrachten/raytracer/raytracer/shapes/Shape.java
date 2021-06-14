@@ -9,4 +9,8 @@ public interface Shape {
     Float calculateAngle(Line line, Vector nearestIntersectionPoint);
 
     Vector getNormal(Vector intersectionPoint);
+
+    Vector getOrigin();
+
+    boolean inside(Vector point);
 }

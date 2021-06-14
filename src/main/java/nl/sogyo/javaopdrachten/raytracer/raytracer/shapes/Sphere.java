@@ -70,4 +70,9 @@ public class Sphere implements Shape {
     public Vector getOrigin() {
         return origin;
     }
+
+    @Override
+    public boolean inside(Vector point) {
+        return origin.subtract(point).getModulus() < radius;
+    }
 }

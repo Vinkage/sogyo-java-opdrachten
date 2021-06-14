@@ -41,19 +41,19 @@ public class RayTracer {
                 new Vector(0, 0, 0),
                 new Viewport(vertices),
                 new Lightsource[] {
-                        // new Lightsource(100, new Vector(500, 500, 155)),
-                        // new Lightsource(50, new Vector(500, -100, 75)),
-                        // new Lightsource(50, new Vector(0, 0, 100)),
-                        new Lightsource(100, new Vector(0, 50, 100)),
+                        // new Lightsource(50, new Vector(0, 0, 500)),
                         new Lightsource(50, new Vector(0, 0, 0)),
+                        // new Lightsource(50, new Vector(5000, 0, 0)),
+                        // new Lightsource(50, new Vector(1000, 0, 190)),
+                        new Lightsource(50, new Vector(500, 500, 100)),
+                        new Lightsource(50, new Vector(500, -100, 75)),
+                        // new Lightsource(100, new Vector(150, 0, 0)),
                         // new Lightsource(50, new Vector(190, 0, 130)),
 
                 },
                 new Shape[] {
                         // new Sphere(new Vector(0, 0, 100), 200),
-                        new Sphere(new Vector(0, 0, 100), 30),
-                        // new Sphere(new Vector(300, 0, 130), 50),
-                        // new Sphere(new Vector(0, 0, 300), 50),
+                        new Sphere(new Vector(100, 150, 130), 50),
                 }
         );
 

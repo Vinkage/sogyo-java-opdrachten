@@ -175,4 +175,16 @@ public class Rectangle implements Shape {
     public Vector getNormal(Vector intersectionPoint) {
         return getNormal();
     }
+
+    @Override
+    public Vector getOrigin() {
+        return corner;
+    }
+
+    @Override
+    public boolean inside(Vector point) {
+        return false;
+    }
+
+
 }

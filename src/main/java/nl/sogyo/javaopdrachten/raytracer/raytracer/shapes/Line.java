@@ -50,4 +50,16 @@ public class Line implements Shape {
     public Vector getNormal(Vector intersectionPoint) {
         return null;
     }
+
+    @Override
+    public Vector getOrigin() {
+        return origin;
+    }
+
+    @Override
+    public boolean inside(Vector point) {
+        return false;
+    }
+
+
 }
