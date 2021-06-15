@@ -42,23 +42,27 @@ public class RayTracer {
                 new Viewport(viewportVertices),
                 new Lightsource[] {
                         // new Lightsource(50, new Vector(0, 0, 500)),
-                        // new Lightsource(50, new Vector(0, 0, 0)),
+                        new Lightsource(50, new Vector(0, 0, 0)),
                         // new Lightsource(50, new Vector(0, 0, 100)),
                         // new Lightsource(50, new Vector(5000, 0, 0)),
                         // new Lightsource(50, new Vector(1000, 0, 190)),
                         new Lightsource(50, new Vector(500, 500, 100)),
                         new Lightsource(50, new Vector(500, -100, 75)),
+                        new Lightsource(50, new Vector(0, 0, 180)),
+                        new Lightsource(50, new Vector(0, -50, 180)),
                         // new Lightsource(100, new Vector(150, 0, 0)),
                         // new Lightsource(50, new Vector(190, 0, 130)),
 
                 },
                 new Shape[] {
                         // new Sphere(new Vector(0, 0, 100), 2000),
-                        new Sphere(new Vector(0, 0, 100), 200),
+                        // new Sphere(new Vector(0, 0, 100), 200),
                         // new Sphere(new Vector(-50, 0, 100), 200),
                         // new Sphere(new Vector(50, 0, 100), 20),
                         // new Sphere(new Vector(-50, 0, 100), 20),
-                        new Sphere(new Vector(100, 150, 130), 50),
+                        new Sphere(new Vector(-50, 0, 240), 200),
+                        new Sphere(new Vector(-60, 0, 230), 40),
+                        //  new Sphere(new Vector(50, 0, 150), 100),
                         // new Sphere(new Vector(40, 150, 60), 50),
                         // new Sphere(new Vector(50, 300, 60), 100),
                 }
@@ -79,7 +83,7 @@ public class RayTracer {
         //     noIntersectionPossible.printStackTrace();
         // }
 
-        scene.draw();
+        scene.toJpg();
 
         // for (float[] row: pixels) {
         //     for (float pixel: row) {

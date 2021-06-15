@@ -6,6 +6,13 @@ public class Vector {
     private Float theta, phi;
     private static final double EPSILON = 1e-6;
 
+    public Vector(Vector toCopy) {
+        this.x = toCopy.x;
+        this.y = toCopy.y;
+        this.z = toCopy.z;
+        setPolarCoordinates();
+    }
+
     public Vector(Float x, Float y, Float z) {
         this.x = x;
         this.y = y;

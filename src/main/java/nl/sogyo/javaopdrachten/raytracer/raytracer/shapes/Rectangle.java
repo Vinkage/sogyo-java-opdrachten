@@ -155,9 +155,11 @@ public class Rectangle implements Shape {
     }
 
     private void findCornerAndSetPoints(Vector[] vertices) {
-        if (vertices[1].subtract(vertices[0]).dotProduct(vertices[2].subtract(vertices[0])) == 0) {
+        float dotEdgeCombo1 = vertices[1].subtract(vertices[0]).dotProduct(vertices[2].subtract(vertices[0]));
+        float dotEdgeCombo2 = vertices[0].subtract(vertices[1]).dotProduct(vertices[2].subtract(vertices[1]));
+        if (Math.abs(dotEdgeCombo1) < EPSILON) {
             corner = vertices[0];
-        } else if (vertices[0].subtract(vertices[1]).dotProduct(vertices[2].subtract(vertices[1])) == 0) {
+        } else if (Math.abs(dotEdgeCombo2) < EPSILON) {
             corner = vertices[1];
         } else {
             corner = vertices[2];

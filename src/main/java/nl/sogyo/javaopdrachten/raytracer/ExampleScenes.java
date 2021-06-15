@@ -22,10 +22,11 @@ public class ExampleScenes {
 
         Scene academyExample = new Scene(
                 new Vector(0, 0, 0),
-                new Viewport(viewportVertices),
+                new Viewport(deepCopyVectorArray(viewportVertices)),
                 new Lightsource[]{
                         new Lightsource(50, new Vector(500, 500, 100)),
                         new Lightsource(50, new Vector(500, -100, 75)),
+                        new Lightsource(50, new Vector(0, 0, 0)),
                 },
                 new Shape[]{
                         new Sphere(new Vector(0, 0, 100), 200),
@@ -36,16 +37,52 @@ public class ExampleScenes {
 
         Scene normalSphere = new Scene(
                 new Vector(0, 0, 0),
-                new Viewport(viewportVertices),
+                new Viewport(deepCopyVectorArray(viewportVertices)),
                 new Lightsource[]{
                         new Lightsource(50, new Vector(500, 500, 100)),
                         new Lightsource(50, new Vector(500, -100, 75)),
+                        new Lightsource(50, new Vector(0, 0, 0)),
                 },
                 new Shape[]{
-                        new Sphere(new Vector(0, 0, 100), 50),
+                        new Sphere(new Vector(0, 0, 160), 100),
                 }
         );
         scenes.put("normalSphere.jpg",normalSphere);
+
+        Scene intersectingSpheres = new Scene(
+                new Vector(0, 0, 0),
+                new Viewport(deepCopyVectorArray(viewportVertices)),
+                new Lightsource[] {
+                        new Lightsource(50, new Vector(0, 0, 0)),
+                        new Lightsource(50, new Vector(500, 500, 100)),
+                        new Lightsource(50, new Vector(500, -100, 75)),
+
+                },
+                new Shape[] {
+
+                        new Sphere(new Vector(-50, 0, 150), 100),
+                        new Sphere(new Vector(50, 0, 150), 100),
+                }
+        );
+        scenes.put("intersectingSpheres.jpg",intersectingSpheres);
+
+        Scene ballAndLightInside = new Scene(
+                new Vector(0, 0, 0),
+                new Viewport(deepCopyVectorArray(viewportVertices)),
+                new Lightsource[] {
+                        new Lightsource(50, new Vector(0, 0, 0)),
+                        new Lightsource(50, new Vector(500, 500, 100)),
+                        new Lightsource(50, new Vector(500, -100, 75)),
+                        new Lightsource(50, new Vector(0, 0, 180)),
+                        new Lightsource(50, new Vector(0, -50, 180)),
+
+                },
+                new Shape[] {
+                        new Sphere(new Vector(-50, 0, 240), 200),
+                        new Sphere(new Vector(-60, 0, 230), 40),
+                }
+        );
+        scenes.put("ballAndLightInsideOtherBall.jpg",ballAndLightInside);
 
         Scene pumpkin = new Scene(
                 new Vector(0, 0, 0),
@@ -78,7 +115,15 @@ public class ExampleScenes {
         for (Map.Entry<String, Scene> scene: scenes.entrySet()) {
             String fileName = scene.getKey();
             Scene exampleScene = scene.getValue();
-            scene.draw(directory, fileName);
+            exampleScene.toJpg(directory, fileName);
         }
+    }
+
+    private Vector[] deepCopyVectorArray(Vector[] array) {
+        Vector[] copy = new Vector[array.length];
+        for (int i = 0; i < array.length; i++) {
+            copy[i] = new Vector(array[i]);
+        }
+        return copy;
     }
 }

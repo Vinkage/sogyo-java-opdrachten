@@ -36,6 +36,7 @@ public class Scene {
         maxBrightness = 0;
         for (Lightsource lightsource: lightsources) maxBrightness = maxBrightness + lightsource.getBrightness();
 
+        System.out.println(viewport);
         image =  new BufferedImage(viewport.getWidth(), viewport.getHeight(), BufferedImage.TYPE_BYTE_INDEXED);
 
     }
@@ -54,10 +55,21 @@ public class Scene {
                 lightsources;
     }
 
-    public void draw() {
-
+    public void toJpg() {
+        draw();
+        writeImage();
     }
-    public void draw(String directory, String fileName) {
+
+    public void toJpg(String fileName) {
+        draw();
+        writeImage(fileName);
+    }
+    public void toJpg(String directory, String fileName) {
+        draw();
+        writeImage(directory, fileName);
+    }
+
+    private void draw() {
         for (int i = 0; i < viewport.getWidth(); i++) {
             for (int j = 0; j < viewport.getHeight(); j++) {
                 Vector pixel = viewport.getVector(new Coordinate(i,j));
@@ -66,7 +78,6 @@ public class Scene {
                 brightnessValueToImage(i, j, brightness);
             }
         }
-        writeImage();
     }
 
     private float calculatePixelBrightness(Vector pixel) {
