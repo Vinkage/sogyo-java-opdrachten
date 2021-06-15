@@ -32,17 +32,18 @@ public class RayTracer {
 
     private void sceneTestDrive() {
         System.out.println("\n\nTesting scene construction");
-        Vector[] vertices = new Vector[] {
+        Vector[] viewportVertices = new Vector[] {
                 new Vector(-400, 300, 50),
                 new Vector(400, 300, 50),
                 new Vector(400, -300, 50),
         };
         Scene scene = new Scene(
                 new Vector(0, 0, 0),
-                new Viewport(vertices),
+                new Viewport(viewportVertices),
                 new Lightsource[] {
                         // new Lightsource(50, new Vector(0, 0, 500)),
-                        new Lightsource(50, new Vector(0, 0, 0)),
+                        // new Lightsource(50, new Vector(0, 0, 0)),
+                        // new Lightsource(50, new Vector(0, 0, 100)),
                         // new Lightsource(50, new Vector(5000, 0, 0)),
                         // new Lightsource(50, new Vector(1000, 0, 190)),
                         new Lightsource(50, new Vector(500, 500, 100)),
@@ -52,8 +53,14 @@ public class RayTracer {
 
                 },
                 new Shape[] {
-                        // new Sphere(new Vector(0, 0, 100), 200),
+                        // new Sphere(new Vector(0, 0, 100), 2000),
+                        new Sphere(new Vector(0, 0, 100), 200),
+                        // new Sphere(new Vector(-50, 0, 100), 200),
+                        // new Sphere(new Vector(50, 0, 100), 20),
+                        // new Sphere(new Vector(-50, 0, 100), 20),
                         new Sphere(new Vector(100, 150, 130), 50),
+                        // new Sphere(new Vector(40, 150, 60), 50),
+                        // new Sphere(new Vector(50, 300, 60), 100),
                 }
         );
 
@@ -63,14 +70,14 @@ public class RayTracer {
 
         AngleCalculator angleCalculator = new AngleCalculator();
 
-        try {
-            Line line = new Line(new Vector(0,0,0), new Vector(800,600,100));
-            Vector[] viewportIntersections = viewport.intersect(line);
-            Intersection intersection = new Intersection(viewportIntersections[0], angleCalculator.calculateAngle(line, viewport), line, viewport);
-            System.out.println(intersection);
-        } catch (NoIntersectionPossible noIntersectionPossible) {
-            noIntersectionPossible.printStackTrace();
-        }
+        // try {
+        //     Line line = new Line(new Vector(0,0,0), new Vector(800,600,100));
+        //     Vector[] viewportIntersections = viewport.intersect(line);
+        //     Intersection intersection = new Intersection(viewportIntersections[0], angleCalculator.calculateAngle(line, viewport), line, viewport);
+        //     System.out.println(intersection);
+        // } catch (NoIntersectionPossible noIntersectionPossible) {
+        //     noIntersectionPossible.printStackTrace();
+        // }
 
         scene.draw();
 

@@ -55,6 +55,9 @@ public class Scene {
     }
 
     public void draw() {
+
+    }
+    public void draw(String directory, String fileName) {
         for (int i = 0; i < viewport.getWidth(); i++) {
             for (int j = 0; j < viewport.getHeight(); j++) {
                 Vector pixel = viewport.getVector(new Coordinate(i,j));
@@ -151,8 +154,25 @@ public class Scene {
                     boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
                     boolean doesntblock = pointIsToofar && pointIsInRightDirection;
 
+                    boolean betweenViewPortAndViewpoint = false;
+                    try {
+                        Vector viewportIntersectCheck = viewport.intersect(lineToLight)[0];
+                        Vector viewportNormal = viewport.getNormal();
+
+                        Vector toPoint = point.subtract(viewpoint);
+                        float toPointNormalToViewport = toPoint.dotProduct(viewportNormal);
+
+                        float viewPortViewPointDistance = viewport.getOrigin().subtract(viewpoint).dotProduct(viewportNormal);
+
+
+                        betweenViewPortAndViewpoint = toPointNormalToViewport < viewPortViewPointDistance; // && notTooBig;
+                    } catch (NoIntersectionPossible e) {
+
+                    }
+
                     if (doesntblock) continue;
                     else if (!pointIsInRightDirection) continue;
+                    else if (betweenViewPortAndViewpoint) continue;
                     return 0;
                 }
 
@@ -196,15 +216,6 @@ public class Scene {
                     boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
                     boolean doesntblock = pointIsToofar && pointIsInRightDirection;
 
-                    // boolean betweenViewPortAndViewpoint = false;
-                    // try {
-                    //     Vector viewportIntersect = viewport.intersect(lineToLight)[0];
-                    //     Vector toViewPoint = viewpoint.subtract(point);
-                    //     Vector toViewPort = viewportIntersect.subtract(point);
-                    //     betweenViewPortAndViewpoint = toViewPoint.dotProduct(toViewPort) < 0;
-                    // } catch (NoIntersectionPossible e) {
-
-                    // }
                     boolean betweenViewPortAndViewpoint = false;
                     try {
                         Vector viewportIntersectCheck = viewport.intersect(lineToLight)[0];
@@ -216,7 +227,7 @@ public class Scene {
                         float viewPortViewPointDistance = viewport.getOrigin().subtract(viewpoint).dotProduct(viewportNormal);
 
 
-                        betweenViewPortAndViewpoint = toPointNormalToViewport < viewPortViewPointDistance; // && notTooBig;
+                        betweenViewPortAndViewpoint = toPointNormalToViewport < viewPortViewPointDistance;
                     } catch (NoIntersectionPossible e) {
 
                     }
@@ -288,13 +299,22 @@ public class Scene {
         }
 
     public void writeImage() {
-        File output = new File("Grayscale.jpg");
+        writeImage("Grayscale.jpg");
+    }
+
+    public void writeImage(String directory, String fileName) {
+        writeImage(directory + "/" + fileName);
+    }
+
+    public void writeImage(String fileName) {
+        File output = new File(fileName);
         try {
             ImageIO.write(image, "jpg", output);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     public Viewport getViewport() {
         return viewport;
