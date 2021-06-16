@@ -118,7 +118,10 @@ public class Scene {
         Vector intersectionNormal = intersection.getNormal();
         Vector lineToLightDirection = lineToLight.parametric().direction();
 
-        if (lineToLightDirection.dotProduct(intersectionNormal) > 0) return 0;
+        boolean impossibleReflection = lineToLightDirection.dotProduct(intersectionNormal) > 0;
+        if (impossibleReflection) return 0;
+
+        if (lightSourceIsOutsideAndWeAreNotLookingIntoShapeFromOutside()) return 0;
 
         try {
             ArrayList<Vector> points = new ArrayList<>(Arrays.asList(intersection.getShape().intersect(lineToLight)));
@@ -168,6 +171,10 @@ public class Scene {
         return lightsource.getBrightness();
     }
 
+    private boolean lightSourceIsOutsideAndWeAreNotLookingIntoShapeFromOutside() {
+        return false;
+    }
+
     private boolean betweenViewportAndViewpoint(Line lineToLight, Vector point) {
         boolean betweenViewPortAndViewpoint = false;
         try {
@@ -202,8 +209,8 @@ public class Scene {
         return points;
     }
 
-    private float reflectionOutsideShape(Intersection intersection, Lightsource lightsource, Line lineToLight) {
-        Vector intersectionNormal = intersection.getNormal();
+    private float reflectionOutsideShape(Intersection reflection, Lightsource lightsource, Line lineToLight) {
+        Vector intersectionNormal = reflection.getNormal();
         Vector lineToLightDirection = lineToLight.parametric().direction();
 
         boolean impossibleReflection = lineToLightDirection.dotProduct(intersectionNormal) < 0;
@@ -211,28 +218,35 @@ public class Scene {
 
         for (Shape shape: myShapes) {
 
-            try {
-                if (shape == intersection.getShape()) continue;
+            if (shape == reflection.getShape()) continue;
 
-                Vector[] points = shape.intersect(lineToLight);
-                for (Vector point: points) {
-                    boolean pointIsToofar = point.subtract(intersection.getPoint()).getModulus() > lightsource.getPosition().subtract(intersection.getPoint()).getModulus();
-                    boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
-                    boolean doesntblock = pointIsToofar && pointIsInRightDirection;
+            if (outsideReflectionCannotReachSource(reflection, lineToLight, shape, lightsource)) return 0;
 
-                    boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, point);
-
-                    if (doesntblock) continue;
-                    else if (!pointIsInRightDirection) continue;
-                    else if (betweenViewPortAndViewpoint) continue;
-                    return 0;
-                }
-
-            } catch (NoIntersectionPossible e) {
-                continue;
-            }
         }
         return lightsource.getBrightness();
+    }
+
+    private boolean outsideReflectionCannotReachSource(Intersection reflection, Line lineToLight, Shape shape, Lightsource lightsource) {
+        try {
+
+            Vector[] points = shape.intersect(lineToLight);
+            for (Vector point: points) {
+                boolean pointIsToofar = point.subtract(reflection.getPoint()).getModulus() > lightsource.getPosition().subtract(reflection.getPoint()).getModulus();
+                boolean pointIsInRightDirection = point.subtract(reflection.getPoint()).dotProduct(lineToLight.parametric().direction()) > 0;
+                boolean doesntblock = pointIsToofar && pointIsInRightDirection;
+
+                boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, point);
+
+                if (doesntblock) continue;
+                else if (!pointIsInRightDirection) continue;
+                else if (betweenViewPortAndViewpoint) continue;
+                return true;
+            }
+            return false;
+
+        } catch (NoIntersectionPossible e) {
+            return false;
+        }
     }
 
     private Intersection nearestIntersection(Line line, float distance) {
