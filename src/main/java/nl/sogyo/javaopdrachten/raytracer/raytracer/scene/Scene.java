@@ -128,21 +128,7 @@ public class Scene {
                 boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
                 boolean outside = lightSourceOutside && pointIsInRightDirection;
 
-                boolean betweenViewPortAndViewpoint = false;
-                try {
-                    Vector viewportIntersectCheck = viewport.intersect(lineToLight)[0];
-                    Vector viewportNormal = viewport.getNormal();
-
-                    Vector toPoint = point.subtract(viewpoint);
-                    float toPointNormalToViewport = toPoint.dotProduct(viewportNormal);
-
-                    float viewPortViewPointDistance = viewport.getOrigin().subtract(viewpoint).dotProduct(viewportNormal);
-
-
-                    betweenViewPortAndViewpoint = toPointNormalToViewport < viewPortViewPointDistance; // && notTooBig;
-                } catch (NoIntersectionPossible e) {
-
-                }
+                boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, point);
 
                 if (outside && betweenViewPortAndViewpoint) {
                     continue;
@@ -165,21 +151,7 @@ public class Scene {
                     boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
                     boolean doesntblock = pointIsToofar && pointIsInRightDirection;
 
-                    boolean betweenViewPortAndViewpoint = false;
-                    try {
-                        Vector viewportIntersectCheck = viewport.intersect(lineToLight)[0];
-                        Vector viewportNormal = viewport.getNormal();
-
-                        Vector toPoint = point.subtract(viewpoint);
-                        float toPointNormalToViewport = toPoint.dotProduct(viewportNormal);
-
-                        float viewPortViewPointDistance = viewport.getOrigin().subtract(viewpoint).dotProduct(viewportNormal);
-
-
-                        betweenViewPortAndViewpoint = toPointNormalToViewport < viewPortViewPointDistance; // && notTooBig;
-                    } catch (NoIntersectionPossible e) {
-
-                    }
+                    boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, point);
 
                     if (doesntblock) continue;
                     else if (!pointIsInRightDirection) continue;
@@ -194,6 +166,25 @@ public class Scene {
 
 
         return lightsource.getBrightness();
+    }
+
+    private boolean betweenViewportAndViewpoint(Line lineToLight, Vector point) {
+        boolean betweenViewPortAndViewpoint = false;
+        try {
+            Vector viewportIntersectCheck = viewport.intersect(lineToLight)[0];
+            Vector viewportNormal = viewport.getNormal();
+
+            Vector toPoint = point.subtract(viewpoint);
+            float toPointNormalToViewport = toPoint.dotProduct(viewportNormal);
+
+            float viewPortViewPointDistance = viewport.getOrigin().subtract(viewpoint).dotProduct(viewportNormal);
+
+
+            betweenViewPortAndViewpoint = toPointNormalToViewport < viewPortViewPointDistance; // && notTooBig;
+        } catch (NoIntersectionPossible e) {
+
+        }
+        return betweenViewPortAndViewpoint;
     }
 
     private ArrayList<Vector> removeIntersectionPoint(Intersection intersection, ArrayList<Vector> points) {
@@ -215,9 +206,11 @@ public class Scene {
         Vector intersectionNormal = intersection.getNormal();
         Vector lineToLightDirection = lineToLight.parametric().direction();
 
-        if (lineToLightDirection.dotProduct(intersectionNormal) < 0) return 0;
+        boolean impossibleReflection = lineToLightDirection.dotProduct(intersectionNormal) < 0;
+        if (impossibleReflection) return 0;
 
         for (Shape shape: myShapes) {
+
             try {
                 if (shape == intersection.getShape()) continue;
 
@@ -227,21 +220,7 @@ public class Scene {
                     boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
                     boolean doesntblock = pointIsToofar && pointIsInRightDirection;
 
-                    boolean betweenViewPortAndViewpoint = false;
-                    try {
-                        Vector viewportIntersectCheck = viewport.intersect(lineToLight)[0];
-                        Vector viewportNormal = viewport.getNormal();
-
-                        Vector toPoint = point.subtract(viewpoint);
-                        float toPointNormalToViewport = toPoint.dotProduct(viewportNormal);
-
-                        float viewPortViewPointDistance = viewport.getOrigin().subtract(viewpoint).dotProduct(viewportNormal);
-
-
-                        betweenViewPortAndViewpoint = toPointNormalToViewport < viewPortViewPointDistance;
-                    } catch (NoIntersectionPossible e) {
-
-                    }
+                    boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, point);
 
                     if (doesntblock) continue;
                     else if (!pointIsInRightDirection) continue;
