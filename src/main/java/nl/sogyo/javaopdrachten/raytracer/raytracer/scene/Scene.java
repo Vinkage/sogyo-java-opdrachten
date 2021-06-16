@@ -103,75 +103,58 @@ public class Scene {
             Line lineToLight = new Line(intersectionPoint, lightsource.getPosition());
 
             if (angleOfIntersectionWithShape > Math.PI / 2 && angleOfIntersectionWithShape < Math.PI * 3 / 2) {
-                brightness = brightness + reflectionOutsideShape(intersection, lightsource, lineToLight);
+                brightness = brightness + reflectionOnTheOutsideOfShape(intersection, lightsource, lineToLight);
             } else {
-                brightness = brightness + reflectionFromInsideShape(intersection, lightsource, lineToLight);
+                brightness = brightness + reflectionFromTheInsideOfShape(intersection, lightsource, lineToLight);
             }
         }
-        // if (brightness > 0) {
-        //     System.out.println("hello");
-        // }
+
         return brightness;
     }
 
-    private float reflectionFromInsideShape(Intersection intersection, Lightsource lightsource, Line lineToLight) {
-        Vector intersectionNormal = intersection.getNormal();
+    private float reflectionFromTheInsideOfShape(Intersection reflection, Lightsource lightsource, Line lineToLight) {
+        Vector reflectionNormal = reflection.getNormal();
         Vector lineToLightDirection = lineToLight.parametric().direction();
 
-        boolean impossibleReflection = lineToLightDirection.dotProduct(intersectionNormal) > 0;
+        boolean impossibleReflection = lineToLightDirection.dotProduct(reflectionNormal) > 0;
         if (impossibleReflection) return 0;
 
-        if (lightSourceIsOutsideAndWeAreNotLookingIntoShapeFromOutside()) return 0;
+        if (lightSourceIsOutsideAndWeAreNotLookingIntoShapeFromOutside(reflection, lineToLight, lightsource)) return 0;
 
+        for (Shape shape: myShapes) {
+
+            if (shape == reflection.getShape()) continue;
+
+            if (reflectionCannotReachSource(reflection, lineToLight, shape, lightsource)) return 0;
+
+        }
+
+        return lightsource.getBrightness();
+    }
+
+    private boolean lightSourceIsOutsideAndWeAreNotLookingIntoShapeFromOutside(Intersection reflection, Line lineToLight, Lightsource lightsource) {
         try {
-            ArrayList<Vector> points = new ArrayList<>(Arrays.asList(intersection.getShape().intersect(lineToLight)));
-            points = removeIntersectionPoint(intersection, points);
-            for (Vector point: points) {
-                boolean lightSourceOutside = point.subtract(intersection.getPoint()).getModulus() < lightsource.getPosition().subtract(intersection.getPoint()).getModulus();
-                boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
+            ArrayList<Vector> points = new ArrayList<>(Arrays.asList(reflection.getShape().intersect(lineToLight)));
+            removeReflectionPointItself(reflection, points);
+
+            for (Vector potentialBlockingPoint: points) {
+
+                boolean lightSourceOutside = potentialBlockingPoint.subtract(reflection.getPoint()).getModulus() < lightsource.getPosition().subtract(reflection.getPoint()).getModulus();
+                boolean pointIsInRightDirection = potentialBlockingPoint.subtract(reflection.getPoint()).dotProduct(lineToLight.parametric().direction()) > 0;
                 boolean outside = lightSourceOutside && pointIsInRightDirection;
 
-                boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, point);
+                boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, potentialBlockingPoint);
 
                 if (outside && betweenViewPortAndViewpoint) {
                     continue;
                 }
                 if (outside) {
-                    return 0f;
+                    return true;
                 }
             }
         } catch (NoIntersectionPossible noIntersectionPossible) {
-            return 0f;
+            return true;
         }
-
-        ArrayList<Shape> copy = new ArrayList<>(myShapes);
-        copy.remove(intersection.getShape());
-        for (Shape shape: copy) {
-            try {
-                Vector[] points = shape.intersect(lineToLight);
-                for (Vector point: points) {
-                    boolean pointIsToofar = point.subtract(intersection.getPoint()).getModulus() > lightsource.getPosition().subtract(intersection.getPoint()).getModulus();
-                    boolean pointIsInRightDirection = point.subtract(intersection.getPoint()).dotProduct(lineToLightDirection) > 0;
-                    boolean doesntblock = pointIsToofar && pointIsInRightDirection;
-
-                    boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, point);
-
-                    if (doesntblock) continue;
-                    else if (!pointIsInRightDirection) continue;
-                    else if (betweenViewPortAndViewpoint) continue;
-                    return 0;
-                }
-
-            } catch (NoIntersectionPossible e) {
-                continue;
-            }
-        }
-
-
-        return lightsource.getBrightness();
-    }
-
-    private boolean lightSourceIsOutsideAndWeAreNotLookingIntoShapeFromOutside() {
         return false;
     }
 
@@ -194,7 +177,7 @@ public class Scene {
         return betweenViewPortAndViewpoint;
     }
 
-    private ArrayList<Vector> removeIntersectionPoint(Intersection intersection, ArrayList<Vector> points) {
+    private ArrayList<Vector> removeReflectionPointItself(Intersection intersection, ArrayList<Vector> points) {
         Vector pointOfInterest = intersection.getPoint();
         Vector nearest = null;
         for (Vector point: points) {
@@ -209,7 +192,7 @@ public class Scene {
         return points;
     }
 
-    private float reflectionOutsideShape(Intersection reflection, Lightsource lightsource, Line lineToLight) {
+    private float reflectionOnTheOutsideOfShape(Intersection reflection, Lightsource lightsource, Line lineToLight) {
         Vector intersectionNormal = reflection.getNormal();
         Vector lineToLightDirection = lineToLight.parametric().direction();
 
@@ -220,22 +203,22 @@ public class Scene {
 
             if (shape == reflection.getShape()) continue;
 
-            if (outsideReflectionCannotReachSource(reflection, lineToLight, shape, lightsource)) return 0;
+            if (reflectionCannotReachSource(reflection, lineToLight, shape, lightsource)) return 0;
 
         }
         return lightsource.getBrightness();
     }
 
-    private boolean outsideReflectionCannotReachSource(Intersection reflection, Line lineToLight, Shape shape, Lightsource lightsource) {
+    private boolean reflectionCannotReachSource(Intersection reflection, Line lineToLight, Shape shape, Lightsource lightsource) {
         try {
 
             Vector[] points = shape.intersect(lineToLight);
-            for (Vector point: points) {
-                boolean pointIsToofar = point.subtract(reflection.getPoint()).getModulus() > lightsource.getPosition().subtract(reflection.getPoint()).getModulus();
-                boolean pointIsInRightDirection = point.subtract(reflection.getPoint()).dotProduct(lineToLight.parametric().direction()) > 0;
+            for (Vector potentialBlockingPoint: points) {
+                boolean pointIsToofar = potentialBlockingPoint.subtract(reflection.getPoint()).getModulus() > lightsource.getPosition().subtract(reflection.getPoint()).getModulus();
+                boolean pointIsInRightDirection = potentialBlockingPoint.subtract(reflection.getPoint()).dotProduct(lineToLight.parametric().direction()) > 0;
                 boolean doesntblock = pointIsToofar && pointIsInRightDirection;
 
-                boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, point);
+                boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, potentialBlockingPoint);
 
                 if (doesntblock) continue;
                 else if (!pointIsInRightDirection) continue;
