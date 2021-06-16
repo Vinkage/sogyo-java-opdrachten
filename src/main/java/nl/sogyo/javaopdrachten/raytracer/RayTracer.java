@@ -3,10 +3,7 @@ package nl.sogyo.javaopdrachten.raytracer;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.anglecalculator.AngleCalculator;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.exceptions.NoIntersectionPossible;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.*;
-import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Line;
-import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.ParametricLine;
-import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape;
-import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Sphere;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.*;
 
 public class RayTracer {
 
@@ -28,49 +25,107 @@ public class RayTracer {
         rayTracer.lightSourceTestDrive();
 
         rayTracer.sceneTestDrive();
+        rayTracer.gpuScene();
     }
+
+    private void gpuScene() {
+        Vector[] viewportVertices = new Vector[] {
+                new Vector(-400, 300, 0),
+                new Vector(400, 300, 0),
+                new Vector(400, -300, 0),
+        };
+        GpuAcceleratedScene scene = new GpuAcceleratedScene(
+                new Vector(0, 0, -1000),
+                new Viewport(viewportVertices),
+                new Lightsource[] {
+                        new Lightsource(200, new Vector(400, 300, 300)),
+                },
+                new Shape[] {
+                        new Rectangle(new Vector[] {
+                                new Vector(-400, -300, 60),
+                                new Vector(-400, -300, 1000),
+                                new Vector(400, -300, 1000),
+                        }),
+                        new Rectangle(new Vector[] {
+                                new Vector(-400, -300, 1000),
+                                new Vector(400, -300, 1000),
+                                new Vector(400, 300, 1000),
+                        }),
+                        new Rectangle(new Vector[] {
+                                new Vector(-400, -300, 60),
+                                new Vector(-400, -300, 1000),
+                                new Vector(-400, 300, 1000),
+                        }),
+                        new Sphere(new Vector(0, 100, 500), 60),
+                },
+                new Colors("pseudocolor")
+        );
+
+        scene.toJpg();
+
+    }
+
 
     private void sceneTestDrive() {
         System.out.println("\n\nTesting scene construction");
         Vector[] viewportVertices = new Vector[] {
-                new Vector(-400, 300, 50),
-                new Vector(400, 300, 50),
-                new Vector(400, -300, 50),
+                new Vector(-400, 300, 0),
+                new Vector(400, 300, 0),
+                new Vector(400, -300, 0),
         };
-        Scene scene = new Scene(
-                new Vector(0, 0, 0),
-                new Viewport(viewportVertices),
-                new Lightsource[] {
-                        // new Lightsource(50, new Vector(0, 0, 500)),
-                        new Lightsource(50, new Vector(0, 0, 0)),
-                        // new Lightsource(50, new Vector(0, 0, 100)),
-                        // new Lightsource(50, new Vector(5000, 0, 0)),
-                        // new Lightsource(50, new Vector(1000, 0, 190)),
-                        new Lightsource(50, new Vector(500, 500, 100)),
-                        new Lightsource(50, new Vector(500, -100, 75)),
-                        new Lightsource(50, new Vector(0, 0, 180)),
-                        new Lightsource(50, new Vector(0, -50, 180)),
-                        // new Lightsource(100, new Vector(150, 0, 0)),
-                        // new Lightsource(50, new Vector(190, 0, 130)),
 
-                },
-                new Shape[] {
-                        // new Sphere(new Vector(0, 0, 100), 2000),
-                        // new Sphere(new Vector(0, 0, 100), 200),
-                        // new Sphere(new Vector(-50, 0, 100), 200),
-                        // new Sphere(new Vector(50, 0, 100), 20),
-                        // new Sphere(new Vector(-50, 0, 100), 20),
-                        new Sphere(new Vector(-50, 0, 240), 200),
-                        new Sphere(new Vector(-60, 0, 230), 40),
-                        //  new Sphere(new Vector(50, 0, 150), 100),
-                        // new Sphere(new Vector(40, 150, 60), 50),
-                        // new Sphere(new Vector(50, 300, 60), 100),
-                }
-        );
+        // Scene scene = new Scene(
+        //         new Vector(0, 0, -1000),
+        //         new Viewport(viewportVertices),
+        //         new Lightsource[] {
+        //                 // new Lightsource(50, new Vector(0, 0, 500)),
+        //                 // new Lightsource(50, new Vector(0, 0, 0)),
+        //                 new Lightsource(200, new Vector(400, 300, 300)),
+        //                 // new Lightsource(50, new Vector(0, 0, 100)),
+        //                 // new Lightsource(50, new Vector(5000, 0, 0)),
+        //                 // new Lightsource(50, new Vector(1000, 0, 190)),
+        //                 // new Lightsource(50, new Vector(500, 500, 100)),
+        //                 // new Lightsource(50, new Vector(500, -100, 75)),
+        //                 // new Lightsource(50, new Vector(0, 0, 180)),
+        //                 // new Lightsource(50, new Vector(0, -50, 180)),
+        //                 // new Lightsource(100, new Vector(150, 0, 0)),
+        //                 // new Lightsource(50, new Vector(190, 0, 130)),
 
-        System.out.println("\tExample scene: ");
-        System.out.println(scene);
-        Viewport viewport = scene.getViewport();
+        //         },
+        //         new Shape[] {
+        //                 new Rectangle(new Vector[] {
+        //                         new Vector(-400, -300, 60),
+        //                         new Vector(-400, -300, 1000),
+        //                         new Vector(400, -300, 1000),
+        //                 }),
+        //                 new Rectangle(new Vector[] {
+        //                         new Vector(-400, -300, 1000),
+        //                         new Vector(400, -300, 1000),
+        //                         new Vector(400, 300, 1000),
+        //                 }),
+        //                 new Rectangle(new Vector[] {
+        //                         new Vector(-400, -300, 60),
+        //                         new Vector(-400, -300, 1000),
+        //                         new Vector(-400, 300, 1000),
+        //                 }),
+        //                 new Sphere(new Vector(0, 100, 500), 60),
+        //                 // new Sphere(new Vector(-30, 30, 55), 10),
+        //                 // new Sphere(new Vector(0, 0, 100), 200),
+        //                 // new Sphere(new Vector(-50, 0, 100), 200),
+        //                 // new Sphere(new Vector(50, 0, 100), 20),
+        //                 // new Sphere(new Vector(-50, 0, 100), 20),
+        //                 // new Sphere(new Vector(-50, 0, 240), 200),
+        //                 // new Sphere(new Vector(150, 100, 155), 100),
+        //                 //  new Sphere(new Vector(50, 0, 150), 100),
+        //                 // new Sphere(new Vector(40, 150, 60), 50),
+        //                 // new Sphere(new Vector(50, 300, 60), 100),
+        //         },
+        //         new Colors("pseudocolor")
+        // );
+
+        // System.out.println("\tExample scene: ");
+        // System.out.println(scene);
+        // Viewport viewport = scene.getViewport();
 
         AngleCalculator angleCalculator = new AngleCalculator();
 
@@ -83,7 +138,7 @@ public class RayTracer {
         //     noIntersectionPossible.printStackTrace();
         // }
 
-        scene.toJpg();
+        // scene.toJpg();
 
         // for (float[] row: pixels) {
         //     for (float pixel: row) {
@@ -255,7 +310,7 @@ public class RayTracer {
         System.out.println(vector.toString());
         vector.scaleModulus(3f);
         System.out.println(vector.toString());
-        System.out.println("\nRotation by pi around z and pi around (X xx Y) in place of: " + vector.toStringWithPolar());
+        System.out.println("\nRotation by pi about z and pi towards or from z: " + vector.toStringWithPolar());
         vector.rotationInPlace((float) (Math.PI), (float) (Math.PI));
         System.out.println(vector.toStringWithPolar() + "\n");
 

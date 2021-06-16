@@ -115,10 +115,8 @@ public class Vector {
     }
 
     private void setDefinedTheta() {
-        if (x == 0 && y == 0) {
+        if (x == 0 || y == 0) {
             this.theta = 0f;// (float) Math.PI /2;
-        } else if (x == 0 && y != 0) {
-            this.theta = (float) Math.PI / 2;
         } else if (x < 0) {
             this.theta = ((float) Math.atan(y / x)) + (float) Math.PI;
         } else {
@@ -184,26 +182,28 @@ public class Vector {
         return new Float[]{this.modulus, this.theta, this.phi};
     }
 
+
     public void rotationInPlace(Float thetaShift, Float phiShift) {
-        Vector axisUnit;
+        rotationInPlace(thetaShift, phiShift, this.toUnitLengthAndReturn().crossProduct(new Vector(0, 0, 1)));
+    }
+    public void rotationInPlace(Float thetaShift, Float phiShift, Vector axisOfRotation) {
         Vector copy;
 
         if (phiShift != 0) {
             copy = new Vector(this.getCartesianCoordinates());
-            axisUnit = this.toUnitLengthAndReturn().crossProduct(new Vector(0, 0, 1));
             // Rodrigues rotation formula
             this.scalarMultiplyInPlace((float) Math.cos(phiShift));
-            this.additionInPlace((axisUnit.crossProduct(copy)).scalarMultiply((float) Math.sin(phiShift)));
-            this.additionInPlace(axisUnit.scalarMultiply((float) ((axisUnit.dotProduct(copy)) * (1 - Math.cos(phiShift)))));
+            this.additionInPlace((axisOfRotation.crossProduct(copy)).scalarMultiply((float) Math.sin(phiShift)));
+            this.additionInPlace(axisOfRotation.scalarMultiply((float) ((axisOfRotation.dotProduct(copy)) * (1 - Math.cos(phiShift)))));
         }
 
         if (thetaShift != 0) {
             copy = new Vector(this.getCartesianCoordinates());
-            axisUnit = new Vector(0, 0, 1);
+            Vector zAxis = new Vector(0, 0, 1);
             // Rodrigues rotation formula
             this.scalarMultiplyInPlace((float) Math.cos(thetaShift));
-            this.additionInPlace((axisUnit.crossProduct(copy)).scalarMultiply((float) Math.sin(thetaShift)));
-            this.additionInPlace(axisUnit.scalarMultiply((float) ((axisUnit.dotProduct(copy)) * (1 - Math.cos(thetaShift)))));
+            this.additionInPlace((zAxis.crossProduct(copy)).scalarMultiply((float) Math.sin(thetaShift)));
+            this.additionInPlace(zAxis.scalarMultiply((float) ((zAxis.dotProduct(copy)) * (1 - Math.cos(thetaShift)))));
         }
         removeRoundOffErrorBluntly();
     }

@@ -13,4 +13,6 @@ public interface Shape {
     Vector getOrigin();
 
     boolean inside(Vector point);
+
+    float getDiffuseCoefficient();
 }

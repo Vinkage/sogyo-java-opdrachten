@@ -61,5 +61,10 @@ public class Line implements Shape {
         return false;
     }
 
+    @Override
+    public float getDiffuseCoefficient() {
+        return 0;
+    }
+
 
 }

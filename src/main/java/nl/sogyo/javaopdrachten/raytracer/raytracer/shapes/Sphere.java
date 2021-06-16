@@ -75,4 +75,9 @@ public class Sphere implements Shape {
     public boolean inside(Vector point) {
         return origin.subtract(point).getModulus() < radius;
     }
+
+    @Override
+    public float getDiffuseCoefficient() {
+        return 0.5f;
+    }
 }

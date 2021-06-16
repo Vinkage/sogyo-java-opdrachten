@@ -19,7 +19,7 @@ public class Rectangle implements Shape {
         findCornerAndSetPoints(vertices);
 
         setRaysAndDimensions();
-        System.out.println("normal of the viewport: " + normal);
+        // System.out.println("normal of the viewport: " + normal);
     }
 
     public int getWidth() {
@@ -50,15 +50,14 @@ public class Rectangle implements Shape {
 
         Vector puntInRechthoekVlak = rayOrigin.addition(vectorVanRayOriginTotPuntInRechtoekVlak);
 
-        float afstandTussenHoekEnPuntInRechthoekVlakX = Math.abs(puntInRechthoekVlak.subtract(corner).dotProduct(xRay.direction()));
-        float afstandTussenHoekEnPuntInRechthoekVlakY = Math.abs(puntInRechthoekVlak.subtract(corner).dotProduct(yRay.direction()));
+        float afstandTussenHoekEnPuntInRechthoekVlakX = puntInRechthoekVlak.subtract(corner).dotProduct(xRay.direction());
+        float afstandTussenHoekEnPuntInRechthoekVlakY = puntInRechthoekVlak.subtract(corner).dotProduct(yRay.direction());
 
         float edgeX = xRay.direction().scalarMultiply((float) width).getModulus();
         float edgeY = yRay.direction().scalarMultiply((float) height).getModulus();
 
-        // System.out.println(afstandTussenHoekEnPuntInRechthoekVlakY);
-        // System.out.println(afstandTussenHoekEnPuntInRechthoekVlakX);
-        if (afstandTussenHoekEnPuntInRechthoekVlakX <= edgeX && afstandTussenHoekEnPuntInRechthoekVlakY <= edgeY) {
+        if (0 <= afstandTussenHoekEnPuntInRechthoekVlakX && afstandTussenHoekEnPuntInRechthoekVlakX <= edgeX &&
+                0 <= afstandTussenHoekEnPuntInRechthoekVlakY && afstandTussenHoekEnPuntInRechthoekVlakY <= edgeY) {
             return new Vector[] {puntInRechthoekVlak};
         }
 
@@ -75,27 +74,28 @@ public class Rectangle implements Shape {
         setXRayToLongestAndYRayToShortestSide();
 
         normal = xRay.direction().crossProduct(yRay.direction());
+        Vector originalNormal = new Vector(normal.getCartesianCoordinates());
+        Vector phiRotationAxis = normal.crossProduct(new Vector(0, 0, 1));
+
         float phi = normal.getPhi();
         float theta = normal.getTheta();
 
         Vector z;
         z = new Vector(0,0,1);
-        float zphi = z.getPhi();
-        float ztheta = z.getTheta();
 
         Vector y;
         y = new Vector(0,1,0);
 
         //rotating to the xy plane
-        float toZPhi = zphi - phi;
-        float toZTheta = ztheta - theta;
+        float toZPhi = z.getPhi() - phi;
+        float toZTheta = z.getTheta() - theta;
 
         // check which direction the normal is compared to the z dimension of the space
         if (normal.dotProduct(z) < 0) {
             toZPhi = toZPhi - (float) Math.PI;
         }
 
-        rotateRectangle(toZTheta, toZPhi);
+        rotateRectangle(toZTheta, toZPhi, phiRotationAxis);
 
         // check if in the sine principal region, correct otherwise
         float toYTheta = y.getTheta() - yRay.direction().getTheta();
@@ -103,9 +103,11 @@ public class Rectangle implements Shape {
         //     toYTheta = (float) (toYTheta - Math.PI);
         // }
 
-        rotateRectangle(toYTheta, 0f);
+        rotateRectangle(toYTheta, 0f, phiRotationAxis);
         chooseTopLeftCorner();
-        rotateRectangle(-toYTheta, 0f);
+        rotateRectangle(-toYTheta, 0f, phiRotationAxis);
+
+        rotateRectangle(originalNormal.getTheta() - normal.getTheta(), originalNormal.getPhi() - normal.getPhi(), phiRotationAxis.scalarMultiply(-1f));
     }
 
     private void chooseTopLeftCorner() {
@@ -119,12 +121,13 @@ public class Rectangle implements Shape {
         }
     }
 
-    private void rotateRectangle(float phi, float theta) {
+    private void rotateRectangle(float theta, float phi, Vector phiRotationAxis) {
         // rotate normal, corner, and rays defining rectangle into xy plane
-        normal.rotationInPlace(phi, theta);
-        xRay.direction().rotationInPlace(phi, theta);
-        yRay.direction().rotationInPlace(phi, theta);
-        corner.rotationInPlace(phi, theta);
+        normal.rotationInPlace(theta, phi, phiRotationAxis);
+        xRay.direction().rotationInPlace(theta, phi, phiRotationAxis);
+
+        yRay.direction().rotationInPlace(theta, phi, phiRotationAxis);
+        corner.rotationInPlace(theta, phi, phiRotationAxis);
     }
 
     public String toString() {
@@ -186,6 +189,11 @@ public class Rectangle implements Shape {
     @Override
     public boolean inside(Vector point) {
         return false;
+    }
+
+    @Override
+    public float getDiffuseCoefficient() {
+        return 0.8f;
     }
 
 

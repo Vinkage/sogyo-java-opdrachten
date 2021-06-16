@@ -15,23 +15,30 @@ import java.util.Arrays;
 
 public class Scene {
     private Vector viewpoint;
-    private Viewport viewport;
+    protected Viewport viewport;
     private ArrayList<Lightsource> myLightsources = new ArrayList<>();
     private ArrayList<nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape> myShapes = new ArrayList<>();
 
     private AngleCalculator angleCalculator = new AngleCalculator();
 
+    private Colors colors;
     private float maxBrightness;
+    private float maxDiffuseCoefficient;
     private final BufferedImage image;
     private static final double EPSILON = 1e-5;
 
-    public Scene(Vector viewpoint, Viewport viewport, Lightsource[] lightsources, nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape[] shapes) {
+    public Scene(Vector viewpoint, Viewport viewport, Lightsource[] lightsources, Shape[] shapes, Colors colors) {
+        this.colors = colors;
         this.viewpoint = viewpoint;
         this.viewport = viewport;
         for (Lightsource lightsource: lightsources)
             myLightsources.add(lightsource);
-        for (nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape shape: shapes)
+
+        maxDiffuseCoefficient = 0;
+        for (nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape shape: shapes) {
             myShapes.add(shape);
+            if (shape.getDiffuseCoefficient() > maxDiffuseCoefficient) maxDiffuseCoefficient = shape.getDiffuseCoefficient();
+        }
 
         maxBrightness = 0;
         for (Lightsource lightsource: lightsources) maxBrightness = maxBrightness + lightsource.getBrightness();
@@ -39,6 +46,10 @@ public class Scene {
         System.out.println(viewport);
         image =  new BufferedImage(viewport.getWidth(), viewport.getHeight(), BufferedImage.TYPE_BYTE_INDEXED);
 
+    }
+
+    public Scene(Vector viewpoint, Viewport viewport, Lightsource[] lightsources, Shape[] shapes) {
+        this(viewpoint, viewport, lightsources, shapes, new Colors());
     }
 
     public String toString() {
@@ -80,36 +91,74 @@ public class Scene {
         }
     }
 
-    private float calculatePixelBrightness(Vector pixel) {
+    protected float calculatePixelBrightness(Vector pixel) {
         // make a line
         Line line = new Line(viewpoint, pixel);
         float distanceFromViewpointToPixel = pixel.subtract(viewpoint).getModulus();
 
-        // Get nearest intersection along line, after viewport
-        Intersection intersection = nearestIntersection(line, distanceFromViewpointToPixel);
+        // Get nearest reflection along line, after viewport
+        Intersection reflection = nearestIntersection(line, distanceFromViewpointToPixel);
 
-        if (!(intersection == null)) {
-            return brightnessOfReflection(intersection, line);
+        if (!(reflection == null)) {
+            return brightnessOfReflection(reflection);
         }
         return 0f;
     }
 
-    private float brightnessOfReflection(Intersection intersection, Line lineFromViewpoint) {
-        float angleOfIntersectionWithShape = intersection.getAngleOfIntersection();
-        Vector intersectionPoint = intersection.getPoint();
+    private float brightnessOfReflection(Intersection reflection) {
+        float angleOfIntersectionWithShape = reflection.getAngleOfIntersection();
+        Vector intersectionPoint = reflection.getPoint();
         float brightness = 0f;
 
         for (Lightsource lightsource: myLightsources) {
             Line lineToLight = new Line(intersectionPoint, lightsource.getPosition());
 
+            float lightsourceBrightness;
             if (angleOfIntersectionWithShape > Math.PI / 2 && angleOfIntersectionWithShape < Math.PI * 3 / 2) {
-                brightness = brightness + reflectionOnTheOutsideOfShape(intersection, lightsource, lineToLight);
+                boolean normalShouldPointOutside = true;
+                lightsourceBrightness = reflectionOnTheOutsideOfShape(reflection, lightsource, lineToLight);
+                lightsourceBrightness = lambertianShader(normalShouldPointOutside, lightsource, reflection, lightsourceBrightness);
+                brightness = brightness +  lightsourceBrightness;
             } else {
-                brightness = brightness + reflectionFromTheInsideOfShape(intersection, lightsource, lineToLight);
+                boolean normalShouldPointOutside = false;
+                lightsourceBrightness = reflectionFromTheInsideOfShape(reflection, lightsource, lineToLight);
+                lightsourceBrightness = lambertianShader(normalShouldPointOutside, lightsource, reflection, lightsourceBrightness);
+                brightness = brightness +  lightsourceBrightness;
             }
         }
 
         return brightness;
+    }
+
+    private float lambertianShader(boolean normalShouldPointOutside, Lightsource lightsource, Intersection reflection, float brightness) {
+        Shape shape = reflection.getShape();
+        Vector normal = reflection.getNormal();
+
+        if (normalShouldPointOutside) normal = normal.scalarMultiply(-1f);
+
+        float dot = normal.dotProduct(new Line(lightsource.getPosition(), reflection.getPoint()).parametric().direction());
+
+
+        float diffuseCoefficient = shape.getDiffuseCoefficient();
+
+        return diffuseCoefficient * brightness * Math.max(0, dot);
+    }
+
+    private float reflectionOnTheOutsideOfShape(Intersection reflection, Lightsource lightsource, Line lineToLight) {
+        Vector intersectionNormal = reflection.getNormal();
+        Vector lineToLightDirection = lineToLight.parametric().direction();
+
+        boolean impossibleReflection = lineToLightDirection.dotProduct(intersectionNormal) < 0;
+        if (impossibleReflection) return 0;
+
+        for (Shape shape: myShapes) {
+
+            if (shape == reflection.getShape()) continue;
+
+            if (reflectionCannotReachSource(reflection, lineToLight, shape, lightsource)) return 0;
+
+        }
+        return lightsource.getBrightness();
     }
 
     private float reflectionFromTheInsideOfShape(Intersection reflection, Lightsource lightsource, Line lineToLight) {
@@ -143,14 +192,11 @@ public class Scene {
                 boolean pointIsInRightDirection = potentialBlockingPoint.subtract(reflection.getPoint()).dotProduct(lineToLight.parametric().direction()) > 0;
                 boolean outside = lightSourceOutside && pointIsInRightDirection;
 
-                boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, potentialBlockingPoint);
+                boolean blockedBetweenViewportAndViewpoint = betweenViewportAndViewpoint(lineToLight, potentialBlockingPoint);
 
-                if (outside && betweenViewPortAndViewpoint) {
-                    continue;
-                }
-                if (outside) {
-                    return true;
-                }
+                if (outside && blockedBetweenViewportAndViewpoint) continue;
+
+                if (outside) return true;
             }
         } catch (NoIntersectionPossible noIntersectionPossible) {
             return true;
@@ -192,23 +238,6 @@ public class Scene {
         return points;
     }
 
-    private float reflectionOnTheOutsideOfShape(Intersection reflection, Lightsource lightsource, Line lineToLight) {
-        Vector intersectionNormal = reflection.getNormal();
-        Vector lineToLightDirection = lineToLight.parametric().direction();
-
-        boolean impossibleReflection = lineToLightDirection.dotProduct(intersectionNormal) < 0;
-        if (impossibleReflection) return 0;
-
-        for (Shape shape: myShapes) {
-
-            if (shape == reflection.getShape()) continue;
-
-            if (reflectionCannotReachSource(reflection, lineToLight, shape, lightsource)) return 0;
-
-        }
-        return lightsource.getBrightness();
-    }
-
     private boolean reflectionCannotReachSource(Intersection reflection, Line lineToLight, Shape shape, Lightsource lightsource) {
         try {
 
@@ -218,11 +247,11 @@ public class Scene {
                 boolean pointIsInRightDirection = potentialBlockingPoint.subtract(reflection.getPoint()).dotProduct(lineToLight.parametric().direction()) > 0;
                 boolean doesntblock = pointIsToofar && pointIsInRightDirection;
 
-                boolean betweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, potentialBlockingPoint);
+                boolean blockedBetweenViewPortAndViewpoint = betweenViewportAndViewpoint(lineToLight, potentialBlockingPoint);
 
                 if (doesntblock) continue;
                 else if (!pointIsInRightDirection) continue;
-                else if (betweenViewPortAndViewpoint) continue;
+                else if (blockedBetweenViewPortAndViewpoint) continue;
                 return true;
             }
             return false;
@@ -232,28 +261,28 @@ public class Scene {
         }
     }
 
-    private Intersection nearestIntersection(Line line, float distance) {
-        Intersection intersection = null;
+    private Intersection nearestIntersection(Line viewpointPixelLine, float distanceToViewportAlongLine) {
+        Intersection intersection;
         Intersection nearestIntersection = null;
 
         for (Shape shape: myShapes) {
             Vector[] intersectionPoints;
             try {
-                intersectionPoints = shape.intersect(line);
+                intersectionPoints = shape.intersect(viewpointPixelLine);
             } catch (NoIntersectionPossible e) {
                 continue;
             }
 
-            for (Vector point: intersectionPoints) {
+            for (Vector reflection: intersectionPoints) {
 
 
-                boolean linePointsTowardsIntersSection = line.parametric().direction().dotProduct(point.subtract(viewpoint)) > 0;
-                boolean pastViewPort = point.subtract(viewpoint).getModulus() > distance;
-                if (linePointsTowardsIntersSection && pastViewPort) {
+                boolean linePointsTowardsIntersection = viewpointPixelLine.parametric().direction().dotProduct(reflection.subtract(viewpoint)) > 0;
+                boolean isBehindViewport = reflection.subtract(viewpoint).getModulus() > distanceToViewportAlongLine;
+                if (linePointsTowardsIntersection && isBehindViewport) {
                     intersection = new Intersection(
-                            point,
-                            shape.calculateAngle(line, point),
-                            line,
+                            reflection,
+                            shape.calculateAngle(viewpointPixelLine, reflection),
+                            viewpointPixelLine,
                             shape
                     );
 
@@ -263,7 +292,7 @@ public class Scene {
                         continue;
                     }
 
-                    if (nearestIntersection.getPoint().subtract(viewpoint).getModulus() < point.subtract(viewpoint).getModulus()) {
+                    if (nearestIntersection.getPoint().subtract(viewpoint).getModulus() < reflection.subtract(viewpoint).getModulus()) {
                     } else {
                         nearestIntersection = intersection;
                     }
@@ -274,19 +303,22 @@ public class Scene {
         return nearestIntersection;
     }
 
-    private void brightnessValueToImage(int row, int col, float brightness) {
+    protected void brightnessValueToImage(int row, int col, float brightness) {
         int brightnessAdjustedPixel;
         if (brightness != 0)
-            brightnessAdjustedPixel = (int) ((brightness / maxBrightness) * 255);
-        else
+            brightnessAdjustedPixel = (int) ((brightness / maxBrightness / maxDiffuseCoefficient) * 255);
+        else {
             brightnessAdjustedPixel = 0;
-
-        Color color = new Color(brightnessAdjustedPixel, brightnessAdjustedPixel, brightnessAdjustedPixel);
-        image.setRGB(row, col, color.getRGB());
         }
 
+        Color color = colors.mapGrayScaleToColor(brightnessAdjustedPixel);
+
+
+        image.setRGB(row, col, color.getRGB());
+    }
+
     public void writeImage() {
-        writeImage("Grayscale.jpg");
+        writeImage(colors.getMapping() + ".jpg");
     }
 
     public void writeImage(String directory, String fileName) {

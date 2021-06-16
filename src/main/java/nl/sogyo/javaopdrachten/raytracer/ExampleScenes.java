@@ -4,6 +4,7 @@ import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Lightsource;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Scene;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Vector;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Viewport;
+import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Rectangle;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape;
 import nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Sphere;
 
@@ -54,8 +55,8 @@ public class ExampleScenes {
                 new Viewport(deepCopyVectorArray(viewportVertices)),
                 new Lightsource[] {
                         new Lightsource(50, new Vector(0, 0, 0)),
-                        new Lightsource(50, new Vector(500, 500, 100)),
-                        new Lightsource(50, new Vector(500, -100, 75)),
+                        // new Lightsource(50, new Vector(500, 500, 100)),
+                        // new Lightsource(50, new Vector(500, -100, 75)),
 
                 },
                 new Shape[] {
@@ -103,6 +104,34 @@ public class ExampleScenes {
                 }
         );
         scenes.put("pumpkin.jpg",pumpkin);
+
+        Scene ballInRoom = new Scene(
+                new Vector(0, 0, -1000),
+                new Viewport(viewportVertices),
+                new Lightsource[] {
+                        new Lightsource(200, new Vector(400, 300, 300)),
+
+                },
+                new Shape[] {
+                        new Rectangle(new Vector[] {
+                                new Vector(-400, -300, 60),
+                                new Vector(-400, -300, 1000),
+                                new Vector(400, -300, 1000),
+                        }),
+                        new Rectangle(new Vector[] {
+                                new Vector(-400, -300, 1000),
+                                new Vector(400, -300, 1000),
+                                new Vector(400, 300, 1000),
+                        }),
+                        new Rectangle(new Vector[] {
+                                new Vector(-400, -300, 60),
+                                new Vector(-400, -300, 1000),
+                                new Vector(-400, 300, 1000),
+                        }),
+                        new Sphere(new Vector(0, 100, 500), 60),
+                }
+        );
+        scenes.put("ballInRoom.jpg",pumpkin);
     }
 
     public static void main(String[] args) {
