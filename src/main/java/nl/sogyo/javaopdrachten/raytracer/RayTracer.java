@@ -24,8 +24,8 @@ public class RayTracer {
 
         // rayTracer.lightSourceTestDrive();
 
-        // rayTracer.sceneTestDrive();
-        rayTracer.gpuScene();
+        rayTracer.sceneTestDrive();
+        // rayTracer.gpuScene();
     }
 
     private void gpuScene() {
@@ -74,54 +74,54 @@ public class RayTracer {
                 new Vector(400, -300, 0),
         };
 
-        // Scene scene = new Scene(
-        //         new Vector(0, 0, -1000),
-        //         new Viewport(viewportVertices),
-        //         new Lightsource[] {
-        //                 // new Lightsource(50, new Vector(0, 0, 500)),
-        //                 // new Lightsource(50, new Vector(0, 0, 0)),
-        //                 new Lightsource(200, new Vector(400, 300, 300)),
-        //                 // new Lightsource(50, new Vector(0, 0, 100)),
-        //                 // new Lightsource(50, new Vector(5000, 0, 0)),
-        //                 // new Lightsource(50, new Vector(1000, 0, 190)),
-        //                 // new Lightsource(50, new Vector(500, 500, 100)),
-        //                 // new Lightsource(50, new Vector(500, -100, 75)),
-        //                 // new Lightsource(50, new Vector(0, 0, 180)),
-        //                 // new Lightsource(50, new Vector(0, -50, 180)),
-        //                 // new Lightsource(100, new Vector(150, 0, 0)),
-        //                 // new Lightsource(50, new Vector(190, 0, 130)),
+        Scene scene = new Scene(
+                new Vector(0, 0, -1000),
+                new Viewport(viewportVertices),
+                new Lightsource[] {
+                        // new Lightsource(50, new Vector(0, 0, 500)),
+                        // new Lightsource(50, new Vector(0, 0, 0)),
+                        new Lightsource(200, new Vector(400, 300, 300)),
+                        // new Lightsource(50, new Vector(0, 0, 100)),
+                        // new Lightsource(50, new Vector(5000, 0, 0)),
+                        // new Lightsource(50, new Vector(1000, 0, 190)),
+                        // new Lightsource(50, new Vector(500, 500, 100)),
+                        // new Lightsource(50, new Vector(500, -100, 75)),
+                        // new Lightsource(50, new Vector(0, 0, 180)),
+                        // new Lightsource(50, new Vector(0, -50, 180)),
+                        // new Lightsource(100, new Vector(150, 0, 0)),
+                        // new Lightsource(50, new Vector(190, 0, 130)),
 
-        //         },
-        //         new Shape[] {
-        //                 new Rectangle(new Vector[] {
-        //                         new Vector(-400, -300, 60),
-        //                         new Vector(-400, -300, 1000),
-        //                         new Vector(400, -300, 1000),
-        //                 }),
-        //                 new Rectangle(new Vector[] {
-        //                         new Vector(-400, -300, 1000),
-        //                         new Vector(400, -300, 1000),
-        //                         new Vector(400, 300, 1000),
-        //                 }),
-        //                 new Rectangle(new Vector[] {
-        //                         new Vector(-400, -300, 60),
-        //                         new Vector(-400, -300, 1000),
-        //                         new Vector(-400, 300, 1000),
-        //                 }),
-        //                 new Sphere(new Vector(0, 100, 500), 60),
-        //                 // new Sphere(new Vector(-30, 30, 55), 10),
-        //                 // new Sphere(new Vector(0, 0, 100), 200),
-        //                 // new Sphere(new Vector(-50, 0, 100), 200),
-        //                 // new Sphere(new Vector(50, 0, 100), 20),
-        //                 // new Sphere(new Vector(-50, 0, 100), 20),
-        //                 // new Sphere(new Vector(-50, 0, 240), 200),
-        //                 // new Sphere(new Vector(150, 100, 155), 100),
-        //                 //  new Sphere(new Vector(50, 0, 150), 100),
-        //                 // new Sphere(new Vector(40, 150, 60), 50),
-        //                 // new Sphere(new Vector(50, 300, 60), 100),
-        //         },
-        //         new Colors("pseudocolor")
-        // );
+                },
+                new Shape[] {
+                        new Rectangle(new Vector[] {
+                                new Vector(-400, -300, 60),
+                                new Vector(-400, -300, 1000),
+                                new Vector(400, -300, 1000),
+                        }),
+                        new Rectangle(new Vector[] {
+                                new Vector(-400, -300, 1000),
+                                new Vector(400, -300, 1000),
+                                new Vector(400, 300, 1000),
+                        }),
+                        new Rectangle(new Vector[] {
+                                new Vector(-400, -300, 60),
+                                new Vector(-400, -300, 1000),
+                                new Vector(-400, 300, 1000),
+                        }),
+                        new Sphere(new Vector(0, 100, 500), 60),
+                        // new Sphere(new Vector(-30, 30, 55), 10),
+                        // new Sphere(new Vector(0, 0, 100), 200),
+                        // new Sphere(new Vector(-50, 0, 100), 200),
+                        // new Sphere(new Vector(50, 0, 100), 20),
+                        // new Sphere(new Vector(-50, 0, 100), 20),
+                        // new Sphere(new Vector(-50, 0, 240), 200),
+                        // new Sphere(new Vector(150, 100, 155), 100),
+                        //  new Sphere(new Vector(50, 0, 150), 100),
+                        // new Sphere(new Vector(40, 150, 60), 50),
+                        // new Sphere(new Vector(50, 300, 60), 100),
+                },
+                new Colors("pseudocolor")
+        );
 
         // System.out.println("\tExample scene: ");
         // System.out.println(scene);
@@ -138,7 +138,7 @@ public class RayTracer {
         //     noIntersectionPossible.printStackTrace();
         // }
 
-        // scene.toJpg();
+        scene.toJpg();
 
         // for (float[] row: pixels) {
         //     for (float pixel: row) {

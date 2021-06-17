@@ -164,6 +164,11 @@ public class Vector {
         return new Float[]{this.x, this.y, this.z};
     }
 
+    public float[] getCartesianPrimitives() {
+        return new float[]{this.x, this.y, this.z};
+    }
+
+
     public float getX() {
         return x;
     }

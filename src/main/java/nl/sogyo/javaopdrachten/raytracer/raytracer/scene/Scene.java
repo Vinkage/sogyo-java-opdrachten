@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Scene {
-    private Vector viewpoint;
+    protected Vector viewpoint;
     protected Viewport viewport;
     private ArrayList<Lightsource> myLightsources = new ArrayList<>();
     private ArrayList<nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape> myShapes = new ArrayList<>();
@@ -24,8 +24,10 @@ public class Scene {
     private Colors colors;
     private float maxBrightness;
     private float maxDiffuseCoefficient;
-    private final BufferedImage image;
+    final BufferedImage image;
     private static final double EPSILON = 1e-5;
+
+    int[] pixelBrightness;
 
     public Scene(Vector viewpoint, Viewport viewport, Lightsource[] lightsources, Shape[] shapes, Colors colors) {
         this.colors = colors;
@@ -45,6 +47,8 @@ public class Scene {
 
         System.out.println(viewport);
         image =  new BufferedImage(viewport.getWidth(), viewport.getHeight(), BufferedImage.TYPE_BYTE_INDEXED);
+
+        pixelBrightness = new int[getViewport().getWidth() * getViewport().getHeight()];
 
     }
 
@@ -80,15 +84,24 @@ public class Scene {
         writeImage(directory, fileName);
     }
 
-    private void draw() {
-        for (int i = 0; i < viewport.getWidth(); i++) {
-            for (int j = 0; j < viewport.getHeight(); j++) {
-                Vector pixel = viewport.getVector(new Coordinate(i,j));
+    void draw() {
+        for (int i = 0; i < viewport.getWidth() * viewport.getHeight(); i++) {
 
-                float brightness = calculatePixelBrightness(pixel);
-                brightnessValueToImage(i, j, brightness);
+            int row = i % viewport.getWidth();
+            int col = Math.floorDiv(i,viewport.getWidth());
+
+            Vector pixel = new Vector(viewport.pixelX[i], viewport.pixelY[i], viewport.pixelZ[i]);
+            float brightness = calculatePixelBrightness(pixel);
+            int adjustedBrightness;
+            if (brightness != 0)
+                adjustedBrightness = (int) ((brightness / maxBrightness / maxDiffuseCoefficient) * 255);
+            else {
+                adjustedBrightness = 0;
             }
+            pixelBrightness[i] = adjustedBrightness;
+            brightnessValueToImage(row, col, adjustedBrightness);
         }
+
     }
 
     protected float calculatePixelBrightness(Vector pixel) {
@@ -303,17 +316,8 @@ public class Scene {
         return nearestIntersection;
     }
 
-    protected void brightnessValueToImage(int row, int col, float brightness) {
-        int brightnessAdjustedPixel;
-        if (brightness != 0)
-            brightnessAdjustedPixel = (int) ((brightness / maxBrightness / maxDiffuseCoefficient) * 255);
-        else {
-            brightnessAdjustedPixel = 0;
-        }
-
-        Color color = colors.mapGrayScaleToColor(brightnessAdjustedPixel);
-
-
+    protected void brightnessValueToImage(int row, int col, int brightness) {
+        Color color = colors.mapGrayScaleToColor(brightness);
         image.setRGB(row, col, color.getRGB());
     }
 
