@@ -21,12 +21,26 @@ import java.nio.IntBuffer;
 
 public class GpuAcceleratedScene extends Scene {
 
-
-
     public static class rayTracerKernel extends Kernel {
         private final Range range;
 
-        private final float[] viewpointXyz;
+
+        private final float[] sphereOrigins;
+        private final float[] sphereRadii;
+
+        private final float[] rectangleCorners;
+        private final float[] rectangleRay1;
+        private final float[] rectangleRay2;
+
+        private final float[] viewpoint;
+        private final float[] viewportCorner;
+        private final float[] viewportXray;
+        private final float[] viewportYray;
+
+        private final float[] rayDirection = new float[3];
+
+        private final float[] nearestIntersection = new float[3];
+        private final float[] reflectionDirection = new float[3];
 
         private final int[] pixels;
 
@@ -34,8 +48,8 @@ public class GpuAcceleratedScene extends Scene {
 
         public rayTracerKernel(Range _range, Scene scene) {
             range = _range;
-            viewpointXyz = scene.viewpoint.getCartesianPrimitives();
-            scene.draw();
+            viewpoint = scene.viewpoint.getCartesianPrimitives();
+            // scene.draw();
             pixels = scene.pixelBrightness;
             image = scene.image;
         }

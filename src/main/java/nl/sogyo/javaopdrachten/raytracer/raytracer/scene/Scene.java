@@ -16,14 +16,14 @@ import java.util.Arrays;
 public class Scene {
     protected Vector viewpoint;
     protected Viewport viewport;
-    private ArrayList<Lightsource> myLightsources = new ArrayList<>();
-    private ArrayList<nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape> myShapes = new ArrayList<>();
+    protected ArrayList<Lightsource> myLightsources = new ArrayList<>();
+    protected ArrayList<nl.sogyo.javaopdrachten.raytracer.raytracer.shapes.Shape> myShapes = new ArrayList<>();
 
     private AngleCalculator angleCalculator = new AngleCalculator();
 
     private Colors colors;
-    private float maxBrightness;
-    private float maxDiffuseCoefficient;
+    protected float maxBrightness;
+    protected float maxDiffuseCoefficient;
     final BufferedImage image;
     private static final double EPSILON = 1e-5;
 
