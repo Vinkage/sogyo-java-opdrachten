@@ -10,21 +10,21 @@ public class RayTracer {
     public static void main(String[] args) {
         RayTracer rayTracer = new RayTracer();
 
-        rayTracer.vectorConstructionTestDrive();
-        rayTracer.vectorScalarOperations();
-        rayTracer.vectorVectorOperations();
+        // rayTracer.vectorConstructionTestDrive();
+        // rayTracer.vectorScalarOperations();
+        // rayTracer.vectorVectorOperations();
 
-        rayTracer.lineTestDrive();
-        rayTracer.angleCalculatorTestDrive();
-        rayTracer.lineIntersecterTestDrive();
+        // rayTracer.lineTestDrive();
+        // rayTracer.angleCalculatorTestDrive();
+        // rayTracer.lineIntersecterTestDrive();
 
-        rayTracer.sphereTestDrive();
+        // rayTracer.sphereTestDrive();
 
-        rayTracer.viewPortTestDrive();
+        // rayTracer.viewPortTestDrive();
 
-        rayTracer.lightSourceTestDrive();
+        // rayTracer.lightSourceTestDrive();
 
-        rayTracer.sceneTestDrive();
+        // rayTracer.sceneTestDrive();
         rayTracer.gpuScene();
     }
 

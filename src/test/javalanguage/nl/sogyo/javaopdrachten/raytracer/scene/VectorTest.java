@@ -1,4 +1,4 @@
-package java.nl.sogyo.javaopdrachten.raytracer.scene;
+package javalanguage.nl.sogyo.javaopdrachten.raytracer.scene;
 
 import nl.sogyo.javaopdrachten.raytracer.raytracer.scene.Vector;
 import org.junit.jupiter.api.*;

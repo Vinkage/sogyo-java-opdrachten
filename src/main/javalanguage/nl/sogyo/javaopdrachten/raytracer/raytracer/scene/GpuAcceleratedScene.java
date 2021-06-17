@@ -31,7 +31,7 @@ public class GpuAcceleratedScene extends Scene {
 
         for (int i = 0; i < in.length; i++) {
             in[i] = 1;
-            in[2] = 2;
+            in2[i] = 2;
         }
 
         int[] out = new int[width * height];
@@ -39,14 +39,14 @@ public class GpuAcceleratedScene extends Scene {
         kernel = new Kernel() {
             @Override
             public void run() {
-                int i = getGlobalId();
-                out[i] = in[i] + in2[i];
+                // int i = getGlobalId();
+                // out[i] = in[i] + in2[i];
             }
         };
 
         Range range = Range.create(out.length);
         kernel.execute(range);
-        System.out.println("Exec mode: " + kernel.getAccumulatedExecutionTime());
+        // System.out.println("Exec mode: " + kernel.get);
 
         // for (int i = 0; i < viewport.getWidth(); i++) {
         //     for (int j = 0; j < viewport.getHeight(); j++) {
