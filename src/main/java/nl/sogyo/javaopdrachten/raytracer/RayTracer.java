@@ -120,7 +120,7 @@ public class RayTracer {
                         // new Sphere(new Vector(40, 150, 60), 50),
                         // new Sphere(new Vector(50, 300, 60), 100),
                 },
-                new Colors("pseudocolor")
+                new Colors("rainbow")
         );
 
         // System.out.println("\tExample scene: ");

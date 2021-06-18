@@ -108,7 +108,7 @@ public class GpuAcceleratedScene extends Scene {
                         }),
                         new Sphere(new Vector(0, 100, 500), 60),
                 },
-                new Colors("pseudocolor")
+                new Colors("rainbow")
         );
 
         width = initialScene.getViewport().getWidth();
