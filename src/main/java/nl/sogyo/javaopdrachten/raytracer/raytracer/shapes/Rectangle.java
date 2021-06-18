@@ -17,6 +17,7 @@ public class Rectangle implements Shape {
     public Rectangle(Vector[] vertices) {
         assert vertices.length == 3;
         findCornerAndSetPoints(vertices);
+        setXRayToLongestAndYRayToShortestSide();
 
         setRaysAndDimensions();
         // System.out.println("normal of the viewport: " + normal);
@@ -71,7 +72,6 @@ public class Rectangle implements Shape {
     }
 
     private void setRaysAndDimensions() {
-        setXRayToLongestAndYRayToShortestSide();
 
         normal = xRay.direction().crossProduct(yRay.direction());
         Vector originalNormal = new Vector(normal.getCartesianCoordinates());
